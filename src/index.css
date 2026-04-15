@@ -1,0 +1,174 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #131313;
+  --color-primary: #d2b06f;
+  --color-primary-container: #d2b06f;
+  --color-on-primary: #000000;
+  --color-surface: #111111;
+  --color-on-surface: #e2e2e2;
+  --color-on-surface-variant: #d0c5b5;
+  --color-surface-container-lowest: #0a0a0a;
+  --color-surface-container-low: #1b1b1b;
+  --color-surface-container: #1f1f1f;
+  --color-surface-container-high: #2a2a2a;
+  --color-surface-container-highest: #353535;
+  --color-outline-variant: #4d4639;
+
+  --font-headline: "Noto Serif", serif;
+  --font-body: "Manrope", sans-serif;
+  --font-label: "Manrope", sans-serif;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-on-surface);
+    font-family: var(--font-body);
+    font-size: 20px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+}
+
+@layer utilities {
+  .ken-burns {
+    animation: kenburns 20s infinite alternate ease-in-out;
+  }
+  .gold-glow {
+    box-shadow: 0 0 0px 0px rgba(210, 176, 111, 0);
+    transition: all 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .gold-glow:hover {
+    box-shadow: 0 0 20px 2px rgba(210, 176, 111, 0.3);
+    transform: translateY(-2px);
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .glass-nav {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .text-glow {
+    text-shadow: 0 0 20px rgba(239, 203, 136, 0.3);
+  }
+}
+
+@keyframes kenburns {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.1); }
+}
+
+html { font-size: 18px; }
+
+h1 { font-size: clamp(3rem, 8vw, 7rem) !important;
+     line-height: 1.1 !important;
+     color: #d2b06f !important; }
+
+h2 { font-size: clamp(2rem, 5vw, 4rem) !important;
+     line-height: 1.2 !important; }
+
+h3 { font-size: clamp(1.5rem, 3vw, 2.5rem) !important; }
+
+p { font-size: clamp(1rem, 1.5vw, 1.25rem) !important;
+    line-height: 1.8 !important; }
+
+nav a { font-size: 1.1rem !important; }
+
+.font-headline { color: #d2b06f !important; }
+
+:root {
+  --color-primary: #d2b06f;
+  --color-gold: #d2b06f;
+}
+
+.text-primary,
+[class*="text-[#c9a96e]"],
+[class*="text-[#efcb88]"] {
+  color: #d2b06f !important;
+}
+
+header {
+  border-bottom: 2px solid #d2b06f !important;
+}
+
+section:nth-child(even) {
+  background-color: #111111 !important;
+}
+
+.border-primary {
+  border-color: #d2b06f !important;
+}
+
+/* Main background slightly lighter */
+.bg-background, body {
+  background-color: #0f0f0f !important;
+}
+
+/* Alternating sections */
+section:nth-child(odd) {
+  background-color: #0f0f0f !important;
+}
+section:nth-child(even) {
+  background-color: #1a1510 !important;
+}
+
+/* Stats section - gold background */
+.stats-section, [class*="stats"] {
+  background-color: #d2b06f !important;
+  color: #0a0a0a !important;
+}
+
+/* Add warm overlay tint to dark sections */
+.section-warm {
+  background-color: #12100a !important;
+}
+
+h1, h2 {
+  text-shadow: 0 0 40px rgba(210, 176, 111, 0.3) !important;
+}
+
+.text-primary {
+  color: #d2b06f !important;
+  font-weight: 500 !important;
+}
+
+/* Make section labels pop */
+p.tracking-widest, 
+p[class*="tracking-widest"] {
+  color: #d2b06f !important;
+  font-size: 0.9rem !important;
+  letter-spacing: 0.3em !important;
+}
+
+/* ── Newsletter section overrides ── */
+#newsletter-section {
+  background: #eed9ab !important;
+}
+#newsletter-section h2 {
+  color: #000 !important;
+  text-shadow: none !important;
+  font-size: 2rem !important;
+  line-height: 1.2 !important;
+}
+#newsletter-section p {
+  color: #333 !important;
+  font-size: 1rem !important;
+  line-height: 1.6 !important;
+}
+#newsletter-section input::placeholder {
+  color: #aaa;
+}
+
+/* ── Footer text size fixes ── */
+footer .material-symbols-outlined {
+  font-family: 'Material Symbols Outlined' !important;
+  font-size: 20px !important;
+  line-height: 1 !important;
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
