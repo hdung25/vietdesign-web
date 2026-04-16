@@ -1,7 +1,17 @@
-import { Link } from 'react-router-dom';
-import { useState, useEffect, useRef } from 'react';
+﻿import { Link } from 'react-router-dom';
+import { useState, useEffect, useRef, type ChangeEvent } from 'react';
 import { useLang } from '../contexts/LanguageContext';
 import { useProjectData } from '../contexts/ProjectDataContext';
+import { useAdminMode } from '../contexts/AdminModeContext';
+
+function toBase64(file: File): Promise<string> {
+  return new Promise((res, rej) => {
+    const reader = new FileReader();
+    reader.onload = () => res(reader.result as string);
+    reader.onerror = rej;
+    reader.readAsDataURL(file);
+  });
+}
 
 function useCountUp(target: number, shouldStart: boolean, duration = 2200) {
   const [count, setCount] = useState(0);
@@ -12,7 +22,6 @@ function useCountUp(target: number, shouldStart: boolean, duration = 2200) {
     const tick = (now: number) => {
       const elapsed = now - start;
       const progress = Math.min(elapsed / duration, 1);
-      // cubic ease-out
       const eased = 1 - Math.pow(1 - progress, 3);
       setCount(Math.floor(eased * target));
       if (progress < 1) raf = requestAnimationFrame(tick);
@@ -56,12 +65,58 @@ function StatItem({
   );
 }
 
+/* ── Admin inline edit button ── */
+function EditBtn({ onClick, label = 'Chỉnh Sửa' }: { onClick: () => void; label?: string }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        position: 'absolute',
+        top: '12px',
+        right: '12px',
+        background: 'rgba(210,176,111,0.92)',
+        color: '#000',
+        border: 'none',
+        padding: '6px 14px',
+        cursor: 'pointer',
+        fontFamily: 'Manrope, sans-serif',
+        fontWeight: 700,
+        fontSize: '0.62rem',
+        letterSpacing: '0.2em',
+        textTransform: 'uppercase',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '5px',
+        zIndex: 20,
+        borderRadius: '2px',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.4)',
+      }}
+    >
+      <span className="material-symbols-outlined" style={{ fontSize: '13px', fontVariationSettings: "'FILL' 0, 'wght' 400" }}>edit</span>
+      {label}
+    </button>
+  );
+}
+
 export default function Home() {
   const { t, lang } = useLang();
-  const { projects, heroImage, heroTitle, heroSubtitle } = useProjectData();
+  const { projects, heroImage, heroTitle, heroSubtitle, setHeroImage, setHeroTitle, setHeroSubtitle } = useProjectData();
+  const { isAdmin } = useAdminMode();
   const [statsStarted, setStatsStarted] = useState(false);
   const statsRef = useRef<HTMLElement>(null);
   const VN = lang === 'VN';
+
+  // Hero inline editing state
+  const [editingHero, setEditingHero] = useState(false);
+  const [localTitle, setLocalTitle] = useState('');
+  const [localSubtitle, setLocalSubtitle] = useState('');
+  const heroFileRef = useRef<HTMLInputElement>(null);
+  const [heroSaving, setHeroSaving] = useState(false);
+
+  // Service card image editing
+  const [editingCard, setEditingCard] = useState<1 | 2 | null>(null);
+  const card1Ref = useRef<HTMLInputElement>(null);
+  const card2Ref = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const el = statsRef.current;
@@ -74,10 +129,31 @@ export default function Home() {
     return () => observer.disconnect();
   }, []);
 
+  const openHeroEdit = () => {
+    setLocalTitle(heroTitle);
+    setLocalSubtitle(heroSubtitle);
+    setEditingHero(true);
+  };
+
+  const saveHero = async () => {
+    setHeroSaving(true);
+    await setHeroTitle(localTitle);
+    await setHeroSubtitle(localSubtitle);
+    setHeroSaving(false);
+    setEditingHero(false);
+  };
+
+  const handleHeroImage = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await setHeroImage(await toBase64(file));
+    e.target.value = '';
+  };
+
   return (
     <>
       {/* Hero Section */}
-      <section className="relative h-screen w-full overflow-hidden flex items-center justify-center">
+      <section className="relative h-screen w-full overflow-hidden flex items-center justify-center" style={{ position: 'relative' }}>
         <div className="absolute inset-0 z-0">
           <img
             alt="Luxury Modern Architecture"
@@ -101,6 +177,71 @@ export default function Home() {
             {t('home.hero.cta')}
           </Link>
         </div>
+
+        {/* Admin: Hero edit overlay */}
+        {isAdmin && !editingHero && (
+          <div style={{ position: 'absolute', inset: 0, zIndex: 15, pointerEvents: 'none' }}>
+            <div style={{ pointerEvents: 'auto', position: 'absolute', top: '16px', right: '16px', display: 'flex', gap: '8px' }}>
+              <button
+                onClick={() => heroFileRef.current?.click()}
+                style={{ background: 'rgba(30,20,0,0.85)', border: '1px solid #d2b06f60', color: '#d2b06f', padding: '7px 16px', cursor: 'pointer', fontFamily: 'Manrope, sans-serif', fontWeight: 700, fontSize: '0.62rem', letterSpacing: '0.2em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '5px', borderRadius: '2px' }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '13px', fontVariationSettings: "'FILL' 0, 'wght' 300" }}>image</span>
+                Đổi Ảnh Nền
+              </button>
+              <button
+                onClick={openHeroEdit}
+                style={{ background: 'rgba(210,176,111,0.92)', color: '#000', border: 'none', padding: '7px 16px', cursor: 'pointer', fontFamily: 'Manrope, sans-serif', fontWeight: 700, fontSize: '0.62rem', letterSpacing: '0.2em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '5px', borderRadius: '2px' }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '13px', fontVariationSettings: "'FILL' 0, 'wght' 400" }}>edit</span>
+                Sửa Tiêu Đề
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Admin: Hero inline form */}
+        {isAdmin && editingHero && (
+          <div style={{ position: 'absolute', inset: 0, zIndex: 15, background: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ background: '#131313', border: '1px solid #d2b06f40', borderTop: '2px solid #d2b06f', padding: '32px', width: '100%', maxWidth: '520px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ color: '#d2b06f', fontSize: '0.65rem', letterSpacing: '0.3em', textTransform: 'uppercase', fontFamily: 'Manrope, sans-serif', fontWeight: 700 }}>
+                ✏ Chỉnh Sửa Hero Section
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ color: '#666', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', fontFamily: 'Manrope, sans-serif' }}>Tiêu Đề Lớn</label>
+                <input
+                  value={localTitle}
+                  onChange={e => setLocalTitle(e.target.value)}
+                  style={{ background: 'transparent', border: 'none', borderBottom: '1px solid #4d4639', color: '#fff', padding: '6px 0', outline: 'none', fontFamily: 'Noto Serif, serif', fontSize: '1.1rem', width: '100%' }}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ color: '#666', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', fontFamily: 'Manrope, sans-serif' }}>Phụ Đề</label>
+                <input
+                  value={localSubtitle}
+                  onChange={e => setLocalSubtitle(e.target.value)}
+                  style={{ background: 'transparent', border: 'none', borderBottom: '1px solid #4d4639', color: '#fff', padding: '6px 0', outline: 'none', fontFamily: 'Manrope, sans-serif', fontSize: '0.95rem', width: '100%' }}
+                />
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  onClick={saveHero}
+                  disabled={heroSaving}
+                  style={{ flex: 1, background: '#d2b06f', color: '#000', border: 'none', padding: '12px', cursor: 'pointer', fontFamily: 'Manrope, sans-serif', fontWeight: 700, fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase', opacity: heroSaving ? 0.7 : 1 }}
+                >
+                  {heroSaving ? 'Đang lưu...' : 'Lưu'}
+                </button>
+                <button
+                  onClick={() => setEditingHero(false)}
+                  style={{ flex: 1, background: 'transparent', border: '1px solid #333', color: '#888', padding: '12px', cursor: 'pointer', fontFamily: 'Manrope, sans-serif', fontSize: '0.7rem', letterSpacing: '0.15em', textTransform: 'uppercase' }}
+                >
+                  Hủy
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        <input ref={heroFileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleHeroImage} />
       </section>
 
       <div style={{ height: '3px', background: 'linear-gradient(90deg, transparent, #d2b06f, transparent)' }} />
@@ -141,6 +282,15 @@ export default function Home() {
                 <p className="text-on-surface-variant mb-6 text-xl leading-relaxed max-w-sm">{t('home.card1.desc')}</p>
                 <Link to="/services" className="text-[#d2b06f] tracking-widest uppercase text-base font-bold border-b border-[#d2b06f]/30 pb-1 hover:border-[#d2b06f] transition-all">{t('home.explore')}</Link>
               </div>
+              {isAdmin && (
+                <EditBtn label="Đổi Ảnh" onClick={() => card1Ref.current?.click()} />
+              )}
+              <input ref={card1Ref} type="file" accept="image/*" style={{ display: 'none' }} onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                // TODO: persist card images via context when ready
+                e.target.value = '';
+              }} />
             </div>
             {/* Card 2 */}
             <div className="group relative aspect-[4/5] overflow-hidden bg-surface-container-low border-l-4 border-[#d2b06f]">
@@ -155,6 +305,14 @@ export default function Home() {
                 <p className="text-on-surface-variant mb-6 text-xl leading-relaxed max-w-sm">{t('home.card2.desc')}</p>
                 <Link to="/services" className="text-[#d2b06f] tracking-widest uppercase text-base font-bold border-b border-[#d2b06f]/30 pb-1 hover:border-[#d2b06f] transition-all">{t('home.explore')}</Link>
               </div>
+              {isAdmin && (
+                <EditBtn label="Đổi Ảnh" onClick={() => card2Ref.current?.click()} />
+              )}
+              <input ref={card2Ref} type="file" accept="image/*" style={{ display: 'none' }} onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                e.target.value = '';
+              }} />
             </div>
           </div>
         </div>
@@ -190,6 +348,19 @@ export default function Home() {
               </Link>
             )})}
           </div>
+
+          {/* Admin: link to manage projects */}
+          {isAdmin && (
+            <div style={{ textAlign: 'center', marginTop: '40px' }}>
+              <Link
+                to="/projects"
+                style={{ background: 'rgba(210,176,111,0.12)', border: '1px solid #d2b06f40', color: '#d2b06f', padding: '10px 28px', fontFamily: 'Manrope, sans-serif', fontWeight: 700, fontSize: '0.68rem', letterSpacing: '0.2em', textTransform: 'uppercase', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px', borderRadius: '2px' }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>apartment</span>
+                Quản Lý Tất Cả Dự Án →
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 
