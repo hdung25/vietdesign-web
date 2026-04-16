@@ -25,33 +25,33 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
   };
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a0a', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-      <div style={{ width: '100%', maxWidth: '420px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-          <h1 style={{ fontFamily: 'Noto Serif, serif', fontSize: '2rem', color: '#d2b06f', letterSpacing: '0.2em', marginBottom: '8px' }}>VIETDESIGN</h1>
-          <p style={{ color: '#999', letterSpacing: '0.3em', textTransform: 'uppercase', fontSize: '0.75rem', fontFamily: 'Manrope, sans-serif' }}>Admin Panel</p>
+      <div style={{ width: '100%', maxWidth: '360px', margin: '0 auto', textAlign: 'center' }}>
+        <div style={{ marginBottom: '40px' }}>
+          <h1 style={{ fontFamily: 'Noto Serif, serif', fontSize: '1.6rem', color: '#d2b06f', letterSpacing: '0.25em', marginBottom: '8px', fontWeight: 400 }}>VIETDESIGN</h1>
+          <p style={{ color: '#999', letterSpacing: '0.3em', textTransform: 'uppercase', fontSize: '0.65rem', fontFamily: 'Manrope, sans-serif' }}>Admin Panel</p>
         </div>
-        <form onSubmit={handleSubmit} style={{ background: '#1f1f1f', padding: '40px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <form onSubmit={handleSubmit} style={{ background: '#131313', padding: '36px', display: 'flex', flexDirection: 'column', gap: '24px', textAlign: 'left', border: '1px solid #1e1e1e' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label style={{ color: '#999', fontSize: '0.7rem', letterSpacing: '0.3em', textTransform: 'uppercase', fontFamily: 'Manrope, sans-serif' }}>Mật Khẩu</label>
+            <label style={{ color: '#888', fontSize: '0.65rem', letterSpacing: '0.3em', textTransform: 'uppercase', fontFamily: 'Manrope, sans-serif' }}>Mật Khẩu</label>
             <div style={{ position: 'relative' }}>
               <input
                 type={show ? 'text' : 'password'}
                 value={pw}
                 onChange={e => { setPw(e.target.value); setError(''); }}
-                style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid #4d4639', paddingBottom: '8px', color: '#fff', fontSize: '1.2rem', outline: 'none', fontFamily: 'Manrope, sans-serif', boxSizing: 'border-box' }}
+                style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid #4d4639', paddingBottom: '8px', color: '#fff', fontSize: '1rem', outline: 'none', fontFamily: 'Manrope, sans-serif', boxSizing: 'border-box' }}
                 autoFocus
               />
               <button type="button" onClick={() => setShow(s => !s)}
-                style={{ position: 'absolute', right: 0, bottom: '8px', background: 'none', border: 'none', color: '#777', cursor: 'pointer' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '18px', fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20" }}>
+                style={{ position: 'absolute', right: 0, bottom: '8px', background: 'none', border: 'none', color: '#777', cursor: 'pointer', padding: 0 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '16px', fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20" }}>
                   {show ? 'visibility_off' : 'visibility'}
                 </span>
               </button>
             </div>
-            {error && <span style={{ color: '#f87171', fontSize: '0.8rem' }}>{error}</span>}
+            {error && <span style={{ color: '#f87171', fontSize: '0.75rem', marginTop: '4px' }}>{error}</span>}
           </div>
           <button type="submit"
-            style={{ background: '#d2b06f', color: '#000', padding: '16px', fontFamily: 'Manrope, sans-serif', fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', fontSize: '0.8rem', border: 'none', cursor: 'pointer' }}>
+            style={{ background: '#d2b06f', color: '#000', padding: '14px', fontFamily: 'Manrope, sans-serif', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', fontSize: '0.75rem', border: 'none', cursor: 'pointer', marginTop: '8px' }}>
             Đăng Nhập
           </button>
         </form>
