@@ -3,6 +3,9 @@
  * Admin writes → localStorage → User reads (same keys).
  */
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { db, storage } from '../firebase';
+import { collection, doc, setDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
+import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 
 export type Category = 'Villa' | 'Căn Hộ' | 'Kiến Trúc' | 'Nội Thất';
 
@@ -134,87 +137,122 @@ export const DEFAULT_PROJECTS: ProjectData[] = [
   },
 ];
 
-const LS_KEY = 'vd_projects_v2';
-
-function loadFromStorage(): ProjectData[] | null {
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw) as ProjectData[];
-  } catch {
-    return null;
-  }
-}
-
-function saveToStorage(projects: ProjectData[]) {
-  try {
-    localStorage.setItem(LS_KEY, JSON.stringify(projects));
-  } catch (e) {
-    console.warn('localStorage full?', e);
-  }
-}
-
 interface ProjectDataCtx {
   projects: ProjectData[];
   heroImage: string | null;
   heroTitle: string;
   heroSubtitle: string;
-  setHeroImage: (v: string | null) => void;
-  setHeroTitle: (v: string) => void;
-  setHeroSubtitle: (v: string) => void;
-  addProject: (p: ProjectData) => void;
-  updateProject: (p: ProjectData) => void;
-  deleteProject: (id: number) => void;
+  setHeroImage: (v: string | null) => Promise<void>;
+  setHeroTitle: (v: string) => Promise<void>;
+  setHeroSubtitle: (v: string) => Promise<void>;
+  addProject: (p: ProjectData) => Promise<void>;
+  updateProject: (p: ProjectData) => Promise<void>;
+  deleteProject: (id: number) => Promise<void>;
+  loading: boolean;
 }
 
 const Ctx = createContext<ProjectDataCtx | null>(null);
 
+async function uploadImageIfBase64(imgUrl: string, path: string): Promise<string> {
+  if (!imgUrl || !imgUrl.startsWith('data:image/')) return imgUrl;
+  const imageRef = ref(storage, path);
+  await uploadString(imageRef, imgUrl, 'data_url');
+  return await getDownloadURL(imageRef);
+}
+
 export function ProjectDataProvider({ children }: { children: ReactNode }) {
-  const [projects, setProjects] = useState<ProjectData[]>(() => {
-    return loadFromStorage() ?? DEFAULT_PROJECTS;
-  });
+  const [projects, setProjects] = useState<ProjectData[]>(DEFAULT_PROJECTS);
+  const [heroImage, setHeroImageState] = useState<string | null>(null);
+  const [heroTitle, setHeroTitleState] = useState('VIETDESIGN');
+  const [heroSubtitle, setHeroSubtitleState] = useState('Kiến Trúc & Nội Thất Đẳng Cấp');
+  const [loading, setLoading] = useState(true);
 
-  const [heroImage, setHeroImageState] = useState<string | null>(
-    () => localStorage.getItem('vd_hero_image')
-  );
-  const [heroTitle, setHeroTitleState] = useState(
-    () => localStorage.getItem('vd_hero_title') ?? 'VIETDESIGN'
-  );
-  const [heroSubtitle, setHeroSubtitleState] = useState(
-    () => localStorage.getItem('vd_hero_subtitle') ?? 'Kiến Trúc & Nội Thất Đẳng Cấp'
-  );
-
+  // Sync with Firestore
   useEffect(() => {
-    saveToStorage(projects);
-  }, [projects]);
+    // Lắng nghe cấu hình trang chủ
+    const unsubSettings = onSnapshot(doc(db, 'settings', 'home'), (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setHeroImageState(data.heroImage ?? null);
+        setHeroTitleState(data.heroTitle ?? 'VIETDESIGN');
+        setHeroSubtitleState(data.heroSubtitle ?? 'Kiến Trúc & Nội Thất Đẳng Cấp');
+      } else {
+        // Ghi dữ liệu mặc định ban đầu
+        setDoc(doc(db, 'settings', 'home'), {
+          heroImage: null,
+          heroTitle: 'VIETDESIGN',
+          heroSubtitle: 'Kiến Trúc & Nội Thất Đẳng Cấp'
+        });
+      }
+    });
 
-  const setHeroImage = (v: string | null) => {
-    setHeroImageState(v);
-    if (v) localStorage.setItem('vd_hero_image', v);
-    else localStorage.removeItem('vd_hero_image');
+    // Lắng nghe dữ liệu các dự án
+    const unsubProjects = onSnapshot(collection(db, 'projects'), (snapshot) => {
+      const fetchedProjects: ProjectData[] = [];
+      snapshot.forEach(docSnap => {
+        fetchedProjects.push({ id: Number(docSnap.id), ...docSnap.data() } as ProjectData);
+      });
+
+      if (fetchedProjects.length > 0) {
+        setProjects(fetchedProjects.sort((a,b) => a.id - b.id)); // Sắp xếp theo ID (hoặc ngày tạo)
+      } else {
+        // Nếu database trống, upload Dữ liệu mẫu lên
+        DEFAULT_PROJECTS.forEach(p => {
+          setDoc(doc(db, 'projects', p.id.toString()), p);
+        });
+        setProjects(DEFAULT_PROJECTS);
+      }
+      setLoading(false);
+    });
+
+    return () => { unsubSettings(); unsubProjects(); };
+  }, []);
+
+  const saveSettings = async (newData: any) => {
+    await setDoc(doc(db, 'settings', 'home'), newData, { merge: true });
   };
 
-  const setHeroTitle = (v: string) => {
-    setHeroTitleState(v);
-    localStorage.setItem('vd_hero_title', v);
+  const setHeroImage = async (v: string | null) => {
+    if (v && v.startsWith('data:image/')) {
+       v = await uploadImageIfBase64(v, `settings/heroImage_${Date.now()}`);
+    }
+    await saveSettings({ heroImage: v });
   };
 
-  const setHeroSubtitle = (v: string) => {
-    setHeroSubtitleState(v);
-    localStorage.setItem('vd_hero_subtitle', v);
+  const setHeroTitle = async (v: string) => await saveSettings({ heroTitle: v });
+  const setHeroSubtitle = async (v: string) => await saveSettings({ heroSubtitle: v });
+
+  const addProject = async (p: ProjectData) => {
+    try {
+      p.coverImage = await uploadImageIfBase64(p.coverImage, `projects/${p.id}/cover`);
+      for (let i = 0; i < p.galleryImages.length; i++) {
+        p.galleryImages[i] = await uploadImageIfBase64(p.galleryImages[i], `projects/${p.id}/gallery_${Date.now()}_${i}`);
+      }
+      await setDoc(doc(db, 'projects', p.id.toString()), p);
+    } catch (error) { console.error("Lỗi khi thêm dự án", error); }
   };
 
-  const addProject = (p: ProjectData) => setProjects(prev => [...prev, p]);
-  const updateProject = (p: ProjectData) =>
-    setProjects(prev => prev.map(x => (x.id === p.id ? p : x)));
-  const deleteProject = (id: number) =>
-    setProjects(prev => prev.filter(p => p.id !== id));
+  const updateProject = async (p: ProjectData) => {
+    try {
+      p.coverImage = await uploadImageIfBase64(p.coverImage, `projects/${p.id}/cover`);
+      for (let i = 0; i < p.galleryImages.length; i++) {
+        p.galleryImages[i] = await uploadImageIfBase64(p.galleryImages[i], `projects/${p.id}/gallery_${Date.now()}_${i}`);
+      }
+      await setDoc(doc(db, 'projects', p.id.toString()), p);
+    } catch (error) { console.error("Lỗi khi cập nhật dự án", error); }
+  };
+
+  const deleteProject = async (id: number) => {
+    try {
+      await deleteDoc(doc(db, 'projects', id.toString()));
+    } catch (error) { console.error("Lỗi xóa dự án", error); }
+  };
 
   return (
     <Ctx.Provider value={{
       projects, heroImage, heroTitle, heroSubtitle,
       setHeroImage, setHeroTitle, setHeroSubtitle,
-      addProject, updateProject, deleteProject,
+      addProject, updateProject, deleteProject, loading
     }}>
       {children}
     </Ctx.Provider>
