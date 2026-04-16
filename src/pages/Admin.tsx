@@ -25,10 +25,11 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
   };
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a0a', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-      <div style={{ width: '100%', maxWidth: '360px', margin: '0 auto', textAlign: 'center' }}>
-        <div style={{ marginBottom: '40px' }}>
-          <h1 style={{ fontFamily: 'Noto Serif, serif', fontSize: '1.6rem', color: '#d2b06f', letterSpacing: '0.25em', marginBottom: '8px', fontWeight: 400 }}>VIETDESIGN</h1>
-          <p style={{ color: '#999', letterSpacing: '0.3em', textTransform: 'uppercase', fontSize: '0.65rem', fontFamily: 'Manrope, sans-serif' }}>Admin Panel</p>
+      <div style={{ width: '100%', maxWidth: '360px', margin: '0 auto', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ marginBottom: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          {/* Dùng div thay cho h1/p để khắc phục lỗi !important trong CSS toàn cục */}
+          <div style={{ fontFamily: 'Noto Serif, serif', fontSize: '24px', color: '#d2b06f', letterSpacing: '0.25em', marginBottom: '8px', fontWeight: 400, transform: 'translateX(0.125em)' }}>VIETDESIGN</div>
+          <div style={{ color: '#999', letterSpacing: '0.3em', textTransform: 'uppercase', fontSize: '11px', fontFamily: 'Manrope, sans-serif', transform: 'translateX(0.15em)' }}>Admin Panel</div>
         </div>
         <form onSubmit={handleSubmit} style={{ background: '#131313', padding: '36px', display: 'flex', flexDirection: 'column', gap: '24px', textAlign: 'left', border: '1px solid #1e1e1e' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
