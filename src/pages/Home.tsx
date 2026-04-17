@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, type ChangeEvent } from 'react';
 import { useLang } from '../contexts/LanguageContext';
 import { useProjectData } from '../contexts/ProjectDataContext';
 import { useAdminMode } from '../contexts/AdminModeContext';
+import Newsletter from '../components/Newsletter';
 
 function toBase64(file: File): Promise<string> {
   return new Promise((res, rej) => {
@@ -245,6 +246,8 @@ export default function Home() {
       </section>
 
       <div style={{ height: '3px', background: 'linear-gradient(90deg, transparent, #d2b06f, transparent)' }} />
+
+      <Newsletter lang={lang} />
 
       {/* Stats Counter */}
       <section ref={statsRef} className="bg-[#0a0a0a] py-12 md:py-24 relative overflow-hidden">

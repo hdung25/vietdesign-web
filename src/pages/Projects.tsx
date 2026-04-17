@@ -1,4 +1,4 @@
-﻿import { useState, useRef, type ChangeEvent, type FormEvent } from 'react';
+import { useState, useRef, type ChangeEvent, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useLang } from '../contexts/LanguageContext';
 import { useProjectData, type ProjectData, type Category } from '../contexts/ProjectDataContext';
@@ -189,14 +189,14 @@ export default function Projects() {
       </div>
 
       {/* ── Projects Grid ── */}
-      <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '60px 40px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px' }}>
+      <div className="max-w-[1300px] mx-auto px-6 md:px-10 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 gap-y-12 md:gap-10">
           {filtered.map((project) => {
             const title = VN ? project.title : project.titleEN;
             const desc = VN ? project.desc : project.descEN;
             return (
-              <div key={project.id} style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}>
-                <Link to={`/projects/${project.id}`} style={{ textDecoration: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column' }}>
+              <div key={project.id} style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%' }}>
+                <Link to={`/projects/${project.id}`} style={{ textDecoration: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
                   <div style={{ position: 'relative', overflow: 'hidden', aspectRatio: '4/3' }}>
                     <img src={project.coverImage} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.7s ease' }} onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.07)')} onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')} />
                     <div style={{ position: 'absolute', top: '16px', left: '16px', background: '#d2b06f', color: '#0a0a0a', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', fontFamily: 'Manrope, sans-serif', fontWeight: 700, padding: '4px 12px' }}>{project.category}</div>
@@ -205,10 +205,10 @@ export default function Projects() {
                       <span style={{ color: '#fff', border: '1px solid rgba(255,255,255,0.6)', padding: '10px 24px', fontFamily: 'Manrope, sans-serif', fontSize: '0.7rem', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 700 }}>{VN ? 'XEM DỰ ÁN' : 'VIEW PROJECT'}</span>
                     </div>
                   </div>
-                  <div style={{ padding: '20px 0 8px', borderBottom: '1px solid #1e1e1e' }}>
+                  <div style={{ padding: '20px 0 16px', borderBottom: '1px solid #1e1e1e', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
                     <h3 style={{ fontFamily: 'Noto Serif, serif', color: '#fff', fontSize: '1.1rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '10px' }}>{title}</h3>
                     <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', lineHeight: 1.7, fontFamily: 'Manrope, sans-serif', marginBottom: '14px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{desc}</p>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 'auto' }}>
                       <span style={{ color: '#d2b06f', fontSize: '0.75rem', letterSpacing: '0.15em', textTransform: 'uppercase', fontFamily: 'Manrope, sans-serif' }}>📍 {project.location}</span>
                       <span style={{ color: '#d2b06f', fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase', fontFamily: 'Manrope, sans-serif', fontWeight: 700, borderBottom: '1px solid #d2b06f44', paddingBottom: '2px' }}>{VN ? 'XEM THÊM →' : 'VIEW MORE →'}</span>
                     </div>
