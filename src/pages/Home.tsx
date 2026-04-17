@@ -1,4 +1,4 @@
-﻿import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useState, useEffect, useRef, type ChangeEvent } from 'react';
 import { useLang } from '../contexts/LanguageContext';
 import { useProjectData } from '../contexts/ProjectDataContext';
@@ -51,14 +51,14 @@ function StatItem({
     <div
       className={`flex flex-col items-center ${
         isMiddle
-          ? 'border-y md:border-y-0 md:border-x border-outline-variant/20 py-8 md:py-0'
+          ? 'border-y md:border-y-0 md:border-x border-outline-variant/20 py-6 md:py-0'
           : ''
       }`}
     >
-      <span className="text-6xl md:text-7xl font-headline text-[#d2b06f] mb-3 tabular-nums">
+      <span className="text-5xl md:text-7xl font-headline text-[#d2b06f] mb-2 md:mb-3 tabular-nums">
         {count}{suffix}
       </span>
-      <span className="text-base font-label tracking-widest uppercase">
+      <span className="text-xs md:text-base font-label tracking-widest uppercase text-white/70">
         {label}
       </span>
     </div>
@@ -247,8 +247,8 @@ export default function Home() {
       <div style={{ height: '3px', background: 'linear-gradient(90deg, transparent, #d2b06f, transparent)' }} />
 
       {/* Stats Counter */}
-      <section ref={statsRef} className="bg-[#d2b06f] py-24 relative overflow-hidden text-black">
-        <div className="max-w-7xl mx-auto px-10 grid grid-cols-1 md:grid-cols-4 gap-16 md:gap-8 text-center">
+      <section ref={statsRef} className="bg-[#0a0a0a] py-12 md:py-24 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 md:px-10 grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-8 text-center">
           <StatItem target={15} suffix="+" label={t('home.stats.years')} shouldStart={statsStarted} />
           <StatItem target={500} suffix="+" label={t('home.stats.projects')} isMiddle shouldStart={statsStarted} />
           <StatItem target={98} suffix="%" label={t('home.stats.satisfaction')} isMiddle shouldStart={statsStarted} />

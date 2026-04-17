@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ProjectDataContext – single source of truth for all editable content.
  * Admin writes → Firestore → All users read (real-time sync).
  */
@@ -109,7 +109,7 @@ export function ProjectDataProvider({ children }: { children: ReactNode }) {
   const [projects, setProjects] = useState<ProjectData[]>(DEFAULT_PROJECTS);
   const [heroImage, setHeroImageState] = useState<string | null>(null);
   const [heroTitle, setHeroTitleState] = useState('VIETDESIGN');
-  const [heroSubtitle, setHeroSubtitleState] = useState('Kiến Trúc & Nội Thất Đẳng Cấp');
+  const [heroSubtitle, setHeroSubtitleState] = useState('Kiến Trúc & Nội Thất');
   const [articles, setArticles] = useState<JournalArticle[]>(DEFAULT_ARTICLES);
   const [contactInfo, setContactInfoState] = useState<ContactInfo>(DEFAULT_CONTACT);
   const [loading, setLoading] = useState(true);
@@ -121,9 +121,9 @@ export function ProjectDataProvider({ children }: { children: ReactNode }) {
         const d = snap.data();
         setHeroImageState(d.heroImage ?? null);
         setHeroTitleState(d.heroTitle ?? 'VIETDESIGN');
-        setHeroSubtitleState(d.heroSubtitle ?? 'Kiến Trúc & Nội Thất Đẳng Cấp');
+        setHeroSubtitleState(d.heroSubtitle ?? 'Kiến Trúc & Nội Thất');
       } else {
-        setDoc(doc(db, 'settings', 'home'), { heroImage: null, heroTitle: 'VIETDESIGN', heroSubtitle: 'Kiến Trúc & Nội Thất Đẳng Cấp' });
+        setDoc(doc(db, 'settings', 'home'), { heroImage: null, heroTitle: 'VIETDESIGN', heroSubtitle: 'Kiến Trúc & Nội Thất' });
       }
     });
 
