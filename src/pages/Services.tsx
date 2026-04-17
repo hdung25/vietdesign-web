@@ -1,6 +1,9 @@
-﻿import { useState, useRef, type ChangeEvent } from 'react';
+import { useState, useRef, useEffect, type ChangeEvent } from 'react';
 import { useLang } from '../contexts/LanguageContext';
 import { useAdminMode } from '../contexts/AdminModeContext';
+import { db } from '../firebase';
+import { doc, setDoc, onSnapshot } from 'firebase/firestore';
+import { uploadImageIfBase64 } from '../contexts/ProjectDataContext';
 
 function toBase64(file: File): Promise<string> {
   return new Promise((res, rej) => {
@@ -96,11 +99,21 @@ export default function Services() {
 
   const [imgs, setImgs] = useState(DEFAULT_IMGS);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
   const fileRefs = [
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
   ];
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'services'), (snap) => {
+      if (snap.exists() && snap.data().imgs) {
+        setImgs(snap.data().imgs);
+      }
+    });
+    return () => unsub();
+  }, []);
 
   const flash = () => { setSaved(true); setTimeout(() => setSaved(false), 2500); };
 
@@ -108,8 +121,25 @@ export default function Services() {
     const file = e.target.files?.[0]; if (!file) return;
     const b64 = await toBase64(file);
     setImgs(prev => prev.map((v, i) => i === idx ? b64 : v));
-    flash();
     e.target.value = '';
+  };
+
+  const saveToDb = async () => {
+    if (!window.confirm('Xác nhận lưu lại các thay đổi ảnh dịch vụ?')) return;
+    setSaving(true);
+    try {
+      const newImgs = [...imgs];
+      for (let i = 0; i < newImgs.length; i++) {
+        newImgs[i] = await uploadImageIfBase64(newImgs[i], `settings/services_${i}_${Date.now()}`);
+      }
+      await setDoc(doc(db, 'settings', 'services'), { imgs: newImgs }, { merge: true });
+      flash();
+    } catch (e) {
+      console.error(e);
+      alert('Lỗi: Firebase từ chối truy cập. Vui lòng đảm bảo bạn ĐÃ BẬT RULES TRONG "FIRESTORE DATABASE" thành true (như đã hướng dẫn đối với Storage).');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const SERVICES = [
@@ -128,8 +158,38 @@ export default function Services() {
             <p className="text-[#d2b06f] font-medium tracking-[0.4em] uppercase text-2xl md:text-3xl mb-4">{t('services.label')}</p>
             <h1 className="font-headline text-7xl md:text-8xl lg:text-9xl text-white tracking-tight">{t('services.title')}</h1>
           </div>
-          {isAdmin && saved && (
-            <span style={{ color: '#4ade80', fontSize: '0.7rem', letterSpacing: '0.2em', fontFamily: 'Manrope, sans-serif', marginBottom: '8px' }}>✓ Đã lưu ảnh</span>
+          {isAdmin && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+              {saved && (
+                <span style={{ color: '#4ade80', fontSize: '0.75rem', letterSpacing: '0.2em', fontFamily: 'Manrope, sans-serif' }}>✓ Đã lưu</span>
+              )}
+              <button
+                onClick={saveToDb}
+                disabled={saving}
+                style={{
+                  background: '#d2b06f',
+                  color: '#000',
+                  border: 'none',
+                  padding: '10px 24px',
+                  cursor: saving ? 'wait' : 'pointer',
+                  fontFamily: 'Manrope, sans-serif',
+                  fontWeight: 800,
+                  fontSize: '0.75rem',
+                  letterSpacing: '0.15em',
+                  textTransform: 'uppercase',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  borderRadius: '2px',
+                  opacity: saving ? 0.7 : 1
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '16px', fontVariationSettings: "'FILL' 1" }}>
+                  {saving ? 'hourglass_empty' : 'save'}
+                </span>
+                {saving ? 'Đang lưu...' : 'Xác nhận Lưu'}
+              </button>
+            </div>
           )}
         </div>
 

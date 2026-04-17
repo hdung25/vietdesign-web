@@ -98,7 +98,7 @@ interface ProjectDataCtx {
 
 const Ctx = createContext<ProjectDataCtx | null>(null);
 
-async function uploadImageIfBase64(imgUrl: string, path: string): Promise<string> {
+export async function uploadImageIfBase64(imgUrl: string, path: string): Promise<string> {
   if (!imgUrl || !imgUrl.startsWith('data:image/')) return imgUrl;
   const imageRef = ref(storage, path);
   await uploadString(imageRef, imgUrl, 'data_url');
