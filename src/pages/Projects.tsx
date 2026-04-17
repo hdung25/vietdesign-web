@@ -46,6 +46,7 @@ function ProjectModal({ initial, onSave, onClose }: {
     if (!title.trim()) { alert('Vui lòng nhập tên dự án.'); return; }
     if (!location.trim()) { alert('Vui lòng nhập địa điểm.'); return; }
     if (!coverImage) { alert('Vui lòng chọn ảnh bìa.'); return; }
+    if (!window.confirm('Xác nhận lưu lại các thay đổi của dự án này?')) return;
     setSaving(true);
     onSave({ id: initial?.id ?? Date.now(), title: title.trim(), titleEN: titleEN.trim() || title.trim(), category, location: location.trim(), desc: desc.trim(), descEN: descEN.trim() || desc.trim(), coverImage, galleryImages, custom: initial?.custom ?? true });
     onClose();

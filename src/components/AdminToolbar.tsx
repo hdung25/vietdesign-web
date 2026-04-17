@@ -1,4 +1,4 @@
-﻿import { useState, useRef, type ChangeEvent } from 'react';
+import { useState, useRef, type ChangeEvent } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminMode } from '../contexts/AdminModeContext';
 import { useProjectData } from '../contexts/ProjectDataContext';
@@ -21,6 +21,7 @@ export default function AdminToolbar() {
   const [saved, setSaved] = useState(false);
   const [localTitle, setLocalTitle] = useState('');
   const [localSubtitle, setLocalSubtitle] = useState('');
+  const [localImage, setLocalImage] = useState<string | null>(null);
   const heroFileRef = useRef<HTMLInputElement>(null);
 
   if (!isAdmin) return null;
@@ -30,21 +31,23 @@ export default function AdminToolbar() {
   const openHeroPanel = () => {
     setLocalTitle(heroTitle);
     setLocalSubtitle(heroSubtitle);
+    setLocalImage(heroImage);
     setPanel('hero');
   };
 
   const saveHero = async () => {
+    if (!window.confirm('Xác nhận lưu lại tất cả các thay đổi?')) return;
+    if (localImage !== heroImage) await setHeroImage(localImage);
     await setHeroTitle(localTitle);
     await setHeroSubtitle(localSubtitle);
     flash();
     setPanel(null);
   };
 
-  const handleHeroImage = async (e: ChangeEvent<HTMLInputElement>) => {
+  const handleHeroImageLocal = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    await setHeroImage(await toBase64(file));
-    flash();
+    setLocalImage(await toBase64(file));
     e.target.value = '';
   };
 
@@ -141,11 +144,11 @@ export default function AdminToolbar() {
             <label style={{ color: '#555', fontSize: '0.57rem', letterSpacing: '0.2em', textTransform: 'uppercase', fontFamily: 'Manrope, sans-serif' }}>Ảnh Nền</label>
             <button onClick={() => heroFileRef.current?.click()} style={{ background: '#1e1600', border: '1px dashed #4d4639', color: '#d2b06f', padding: '5px 14px', cursor: 'pointer', fontSize: '0.62rem', letterSpacing: '0.15em', textTransform: 'uppercase', fontFamily: 'Manrope, sans-serif', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '12px', fontVariationSettings: "'FILL' 0, 'wght' 300" }}>upload</span>
-              {heroImage ? 'Đổi Ảnh' : 'Tải Lên'}
+              {localImage ? 'Đổi Ảnh' : 'Tải Lên'}
             </button>
-            <input ref={heroFileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleHeroImage} />
-            {heroImage && (
-              <button onClick={async () => { await setHeroImage(null); flash(); }} style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', fontSize: '0.57rem', letterSpacing: '0.1em', padding: '2px 0', textAlign: 'left', fontFamily: 'Manrope, sans-serif' }}>✕ Xóa ảnh</button>
+            <input ref={heroFileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleHeroImageLocal} />
+            {localImage && (
+              <button onClick={() => setLocalImage(null)} style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', fontSize: '0.57rem', letterSpacing: '0.1em', padding: '2px 0', textAlign: 'left', fontFamily: 'Manrope, sans-serif' }}>✕ Xóa ảnh</button>
             )}
           </div>
 

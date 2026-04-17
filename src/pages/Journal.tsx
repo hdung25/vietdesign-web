@@ -1,4 +1,4 @@
-﻿import { useState, useRef, type ChangeEvent, type FormEvent } from 'react';
+import { useState, useRef, type ChangeEvent, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useLang } from '../contexts/LanguageContext';
 import { useProjectData, type JournalArticle } from '../contexts/ProjectDataContext';
@@ -37,6 +37,7 @@ function ArticleModal({ initial, onSave, onClose }: {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!title.trim()) { alert('Vui lòng nhập tiêu đề.'); return; }
+    if (!window.confirm('Xác nhận lưu lại các thay đổi của bài viết này?')) return;
     onSave({ id: initial?.id ?? Date.now(), title: title.trim(), titleEN: titleEN || title, category: category || 'Chung', categoryEN: categoryEN || category || 'General', date, image, excerpt: excerpt.trim(), excerptEN: excerptEN || excerpt, content: initial?.content ?? '', contentEN: initial?.contentEN ?? '' });
     onClose();
   };

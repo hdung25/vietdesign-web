@@ -107,10 +107,10 @@ export default function Home() {
   const statsRef = useRef<HTMLElement>(null);
   const VN = lang === 'VN';
 
-  // Hero inline editing state
   const [editingHero, setEditingHero] = useState(false);
   const [localTitle, setLocalTitle] = useState('');
   const [localSubtitle, setLocalSubtitle] = useState('');
+  const [localImage, setLocalImage] = useState<string | null>(null);
   const heroFileRef = useRef<HTMLInputElement>(null);
   const [heroSaving, setHeroSaving] = useState(false);
 
@@ -133,21 +133,24 @@ export default function Home() {
   const openHeroEdit = () => {
     setLocalTitle(heroTitle);
     setLocalSubtitle(heroSubtitle);
+    setLocalImage(heroImage);
     setEditingHero(true);
   };
 
   const saveHero = async () => {
+    if (!window.confirm('Xác nhận lưu lại tất cả các thay đổi?')) return;
     setHeroSaving(true);
+    if (localImage !== heroImage) await setHeroImage(localImage);
     await setHeroTitle(localTitle);
     await setHeroSubtitle(localSubtitle);
     setHeroSaving(false);
     setEditingHero(false);
   };
 
-  const handleHeroImage = async (e: ChangeEvent<HTMLInputElement>) => {
+  const handleHeroImageLocal = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    await setHeroImage(await toBase64(file));
+    setLocalImage(await toBase64(file));
     e.target.value = '';
   };
 
@@ -226,11 +229,25 @@ export default function Home() {
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button
+                  onClick={() => heroFileRef.current?.click()}
+                  style={{ background: '#1e1600', border: '1px dashed #4d4639', color: '#d2b06f', padding: '10px', cursor: 'pointer', fontFamily: 'Manrope, sans-serif', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', flex: 1 }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>upload</span>
+                  {localImage ? 'Đổi Ảnh Nền' : 'Tải Ảnh Lên'}
+                </button>
+                {localImage && (
+                  <button onClick={() => setLocalImage(null)} style={{ background: 'transparent', border: '1px solid #f87171', color: '#f87171', padding: '10px', cursor: 'pointer', fontFamily: 'Manrope, sans-serif', fontSize: '0.65rem', textTransform: 'uppercase' }}>
+                    ✕ Xóa Ảnh
+                  </button>
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
                   onClick={saveHero}
                   disabled={heroSaving}
                   style={{ flex: 1, background: '#d2b06f', color: '#000', border: 'none', padding: '12px', cursor: 'pointer', fontFamily: 'Manrope, sans-serif', fontWeight: 700, fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase', opacity: heroSaving ? 0.7 : 1 }}
                 >
-                  {heroSaving ? 'Đang lưu...' : 'Lưu'}
+                  {heroSaving ? 'Đang lưu...' : 'Xác Nhận Lưu'}
                 </button>
                 <button
                   onClick={() => setEditingHero(false)}
@@ -242,7 +259,7 @@ export default function Home() {
             </div>
           </div>
         )}
-        <input ref={heroFileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleHeroImage} />
+        <input ref={heroFileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleHeroImageLocal} />
       </section>
 
       <div style={{ height: '3px', background: 'linear-gradient(90deg, transparent, #d2b06f, transparent)' }} />
