@@ -86,12 +86,6 @@ export default function Layout({ children }: { children: ReactNode }) {
         }}
       >
         <div className="flex items-center gap-3 md:gap-4 shrink-0">
-          <span
-            className="material-symbols-outlined text-[#d2b06f] cursor-pointer text-xl md:text-2xl"
-            style={{ fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24" }}
-          >
-            menu
-          </span>
           <Link to="/" className="flex items-center gap-2 md:gap-3">
             <img
               src="/logo.png"
@@ -239,17 +233,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                 CHÍNH SÁCH BẢO MẬT
               </Link>
             </div>
-            <div className="flex gap-4 justify-center md:col-span-2 lg:col-span-1 lg:justify-end">
-              <a href="https://facebook.com/vietdesign" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:border-[#d2b06f] hover:bg-[#d2b06f] hover:text-[#111] transition-all">
-                <span className="material-symbols-outlined text-xl">group</span>
-              </a>
-              <a href="https://instagram.com/vietdesign" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:border-[#d2b06f] hover:bg-[#d2b06f] hover:text-[#111] transition-all">
-                <span className="material-symbols-outlined text-xl">photo_camera</span>
-              </a>
-              <a href="https://youtube.com/@vietdesign" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:border-[#d2b06f] hover:bg-[#d2b06f] hover:text-[#111] transition-all">
-                <span className="material-symbols-outlined text-xl">play_circle</span>
-              </a>
-            </div>
+
           </div>
 
           {/* ROW 3 – Copyright */}
