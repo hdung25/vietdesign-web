@@ -100,9 +100,41 @@ const Ctx = createContext<ProjectDataCtx | null>(null);
 
 export async function uploadImageIfBase64(imgUrl: string, path: string): Promise<string> {
   if (!imgUrl || !imgUrl.startsWith('data:image/')) return imgUrl;
-  const imageRef = ref(storage, path);
-  await uploadString(imageRef, imgUrl, 'data_url');
-  return await getDownloadURL(imageRef);
+  
+  // BYPASS FIREBASE STORAGE: Nén ảnh tại client và lưu dưới dạng Base64 siêu nhẹ
+  // để lưu trực tiếp vào Firestore Database (bên Firestore có giới hạn 1MB/document nên cần nén).
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'Anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let width = img.width;
+      let height = img.height;
+      const MAX = 1100; // Giảm kích thước ảnh để đảm bảo file base64 rất nhỏ (< 150KB)
+      
+      if (width > height && width > MAX) {
+        height = Math.round((height * MAX) / width);
+        width = MAX;
+      } else if (height > MAX) {
+        width = Math.round((width * MAX) / height);
+        height = MAX;
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
+      }
+      
+      // Chuyển sang định dạng JPEG nén ở chất lượng 65% (khoảng 80KB - 120KB)
+      resolve(canvas.toDataURL('image/jpeg', 0.65));
+    };
+    img.onerror = () => resolve(imgUrl);
+    img.src = imgUrl; // Kích hoạt chạy nén ảnh
+  });
 }
 
 export function ProjectDataProvider({ children }: { children: ReactNode }) {
