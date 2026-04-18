@@ -14,7 +14,7 @@ function toBase64(file: File): Promise<string> {
   });
 }
 
-const DEFAULT_IMAGES = ['/banve1.jpg', '/banve2.jpg', '/banve3.jpg', '/download.jpg'];
+const DEFAULT_IMAGES = ['/banve1.jpg', '/banve2.jpg', '/banve3.jpg', '/download.jpg', '/banve4.jpg', '/banve5.jpg', '/banve6.jpg'];
 
 /* ── Lightbox Component ── */
 function Lightbox({
@@ -251,15 +251,30 @@ export default function Design() {
     setActiveIdx(idx);
     fileRef.current?.click();
   };
+  const triggerAdd = () => {
+    setActiveIdx(-1);
+    fileRef.current?.click();
+  };
+
+  const deleteImage = async (idx: number) => {
+    if (!window.confirm('Bạn có chắc muốn xóa ảnh này?')) return;
+    const newImages = images.filter((_, i) => i !== idx);
+    setImages(newImages);
+    await saveToFirestore({ images: newImages });
+  };
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || activeIdx === null) return;
     setUploading(true);
     const b64 = await toBase64(file);
-    const compressed = await uploadImageIfBase64(b64, `design/image_${activeIdx}_${Date.now()}`);
-    const newImages = [...images];
-    newImages[activeIdx] = compressed;
+    const compressed = await uploadImageIfBase64(b64, `design/image_${Date.now()}`);
+    let newImages = [...images];
+    if (activeIdx === -1) {
+      newImages.push(compressed);
+    } else {
+      newImages[activeIdx] = compressed;
+    }
     setImages(newImages);
     await saveToFirestore({ images: newImages });
     setUploading(false);
@@ -467,6 +482,31 @@ export default function Design() {
                   Xem
                 </div>
 
+                {/* Admin: delete image button */}
+                {isAdmin && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); deleteImage(idx); }}
+                    style={{
+                      position: 'absolute',
+                      top: '10px',
+                      left: '10px',
+                      background: 'rgba(255,0,0,0.8)',
+                      color: '#fff',
+                      border: 'none',
+                      width: '28px',
+                      height: '28px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      zIndex: 30,
+                      borderRadius: '4px',
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>delete</span>
+                  </button>
+                )}
+
                 {/* Admin: replace image button */}
                 {isAdmin && (
                   <button
@@ -504,6 +544,38 @@ export default function Design() {
               </div>
             ))}
           </div>
+
+          {/* Admin: Add Image Button */}
+          {isAdmin && (
+            <div className="flex justify-center mt-10">
+              <button
+                onClick={triggerAdd}
+                disabled={uploading}
+                style={{
+                  background: '#d2b06f',
+                  color: '#000',
+                  border: 'none',
+                  padding: '12px 24px',
+                  cursor: uploading ? 'wait' : 'pointer',
+                  fontFamily: 'Manrope, sans-serif',
+                  fontWeight: 700,
+                  fontSize: '0.75rem',
+                  letterSpacing: '0.2em',
+                  textTransform: 'uppercase',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  borderRadius: '2px',
+                  opacity: uploading && activeIdx === -1 ? 0.6 : 1,
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                  {uploading && activeIdx === -1 ? 'hourglass_empty' : 'add_photo_alternate'}
+                </span>
+                {uploading && activeIdx === -1 ? 'Đang Tải...' : 'Thêm Ảnh Mới'}
+              </button>
+            </div>
+          )}
 
           {/* Bottom label */}
           <div className="text-center mt-12">
