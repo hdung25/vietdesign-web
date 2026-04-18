@@ -212,11 +212,15 @@ export default function Layout({ children }: { children: ReactNode }) {
               <div className="flex flex-col gap-3 items-center lg:items-start">
                 <div className="flex items-center gap-3 text-white">
                   <span className="material-symbols-outlined text-[#d2b06f]">phone</span>
-                  <span className="text-sm md:text-base font-light font-body">Hotline: +84 989 942 555</span>
+                  <span className="text-sm md:text-base font-light font-body">
+                    Hotline: <a href="tel:0986921555" className="text-[#d2b06f] hover:underline font-medium tracking-wider">0986921555</a>
+                  </span>
                 </div>
                 <div className="flex items-center gap-3 text-white">
                   <span className="material-symbols-outlined text-[#d2b06f] opacity-0">phone</span>
-                  <span className="text-sm md:text-base font-light font-body">+84 908 666 622</span>
+                  <span className="text-sm md:text-base font-light font-body">
+                    <a href="tel:0989942555" className="text-[#d2b06f] hover:underline font-medium tracking-wider">0989 942 555</a>
+                  </span>
                 </div>
                 <div className="flex items-center gap-3 text-white">
                   <span className="material-symbols-outlined text-[#d2b06f]">language</span>
@@ -247,7 +251,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                 {lang === 'VN' ? 'VĂN PHÒNG HÀ NỘI' : 'HANOI OFFICE'}
               </div>
               <div className="text-white/70 mb-6 text-sm md:text-base font-light leading-relaxed">
-                số 6 ngõ 158 đường thanh bình,mỗ lao,hà đông,hà nội.
+                Số 6 ngõ 158 đường Thanh Bình, Mỗ Lao, Hà Đông, Hà Nội.
               </div>
               <div className="text-[#d2b06f] font-semibold mb-2 text-sm md:text-base uppercase tracking-wider">
                 {lang === 'VN' ? 'VĂN PHÒNG HCM' : 'HCM OFFICE'}
@@ -256,16 +260,29 @@ export default function Layout({ children }: { children: ReactNode }) {
                 80 đường số 5 khu dân cư Hồng Long, Hiệp Bình Phước, Thủ Đức HCM.
               </div>
               <div className="text-[#d2b06f] font-semibold mb-2 text-sm md:text-base uppercase tracking-wider">
+                {lang === 'VN' ? 'VĂN PHÒNG HƯNG YÊN' : 'HUNG YEN OFFICE'}
+              </div>
+              <div className="text-white/70 mb-6 text-sm md:text-base font-light leading-relaxed">
+                Chà là 15-41 Vinhome Ocean Park 2.
+              </div>
+              <div className="text-[#d2b06f] font-semibold mb-2 text-sm md:text-base uppercase tracking-wider">
                 HOTLINE
               </div>
-              <div className="text-white/70 mb-6 text-sm md:text-base font-light">
-                0986921555
+              <div className="mb-6 text-sm md:text-base font-light flex flex-col gap-2">
+                <a href="tel:0986921555" className="text-[#d2b06f] font-bold tracking-wider hover:underline transition-all duration-300 inline-block">
+                  0986921555
+                </a>
+                <a href="tel:0989942555" className="text-[#d2b06f] font-bold tracking-wider hover:underline transition-all duration-300 inline-block">
+                  0989 942 555
+                </a>
               </div>
               <div className="text-[#d2b06f] font-semibold mb-2 text-sm md:text-base uppercase tracking-wider">
                 EMAIL
               </div>
               <div className="text-white/70 text-sm md:text-base font-light">
-                cskh.vietdesign@gmail.com
+                <a href="mailto:cskh.vietdesign@gmail.com" className="hover:text-[#d2b06f] transition-colors">
+                  cskh.vietdesign@gmail.com
+                </a>
               </div>
             </div>
           </div>
@@ -315,7 +332,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             }}
           />
         </FloatingButton>
-        <FloatingButton href="tel:+84989942555" label={lang === 'VN' ? 'Gọi Điện' : 'Call Us'}>
+        <FloatingButton href="tel:0986921555" label={lang === 'VN' ? 'Gọi Điện' : 'Call Us'}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 md:w-5 md:h-5">
             <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.5 1.19 2 2 0 012.48.98h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 8.49a16 16 0 006.6 6.6l1.86-1.86a2 2 0 012.11-.45c.908.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
           </svg>
