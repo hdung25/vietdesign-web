@@ -219,13 +219,13 @@ export default function Layout({ children }: { children: ReactNode }) {
                 <div className="flex items-center gap-3 text-white">
                   <span className="material-symbols-outlined text-[#d2b06f] opacity-0">phone</span>
                   <span className="text-sm md:text-base font-light font-body">
-                    <a href="tel:+84989942555" className="text-[#d2b06f] hover:underline font-medium tracking-wider">+84 989 942 555</a>
+                    <a href="tel:0989942555" className="text-[#d2b06f] hover:underline font-medium tracking-wider">0989942555</a>
                   </span>
                 </div>
                 <div className="flex items-center gap-3 text-white">
                   <span className="material-symbols-outlined text-[#d2b06f] opacity-0">phone</span>
                   <span className="text-sm md:text-base font-light font-body">
-                    <a href="tel:+84908666622" className="text-[#d2b06f] hover:underline font-medium tracking-wider">+84 908 666 622</a>
+                    <a href="tel:0908666622" className="text-[#d2b06f] hover:underline font-medium tracking-wider">0908666622</a>
                   </span>
                 </div>
                 <div className="flex items-center gap-3 text-white">
@@ -278,11 +278,11 @@ export default function Layout({ children }: { children: ReactNode }) {
                 <a href="tel:0986921555" className="text-[#d2b06f] font-bold tracking-wider hover:underline transition-all duration-300 inline-block">
                   0986921555
                 </a>
-                <a href="tel:+84989942555" className="text-[#d2b06f] font-bold tracking-wider hover:underline transition-all duration-300 inline-block">
-                  +84 989 942 555
+                <a href="tel:0989942555" className="text-[#d2b06f] font-bold tracking-wider hover:underline transition-all duration-300 inline-block">
+                  0989942555
                 </a>
-                <a href="tel:+84908666622" className="text-[#d2b06f] font-bold tracking-wider hover:underline transition-all duration-300 inline-block">
-                  +84 908 666 622
+                <a href="tel:0908666622" className="text-[#d2b06f] font-bold tracking-wider hover:underline transition-all duration-300 inline-block">
+                  0908666622
                 </a>
               </div>
               <div className="text-[#d2b06f] font-semibold mb-2 text-sm md:text-base uppercase tracking-wider">
