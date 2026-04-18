@@ -1,8 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
-import { useState, type FormEvent, type ReactNode } from 'react';
+import { useState, useEffect, type FormEvent, type ReactNode } from 'react';
 import { useLang } from '../contexts/LanguageContext';
 import { useAdminMode } from '../contexts/AdminModeContext';
 import AdminToolbar from './AdminToolbar';
+import { db } from '../firebase';
+import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 
 /* ─── Floating button ─── */
 const FloatingButton = ({
@@ -68,6 +70,39 @@ export default function Layout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const currentPath = location.pathname;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Footer data state
+  const [footerData, setFooterData] = useState({
+    hanoi: 'Số 6 ngõ 158 đường Thanh Bình, Mỗ Lao, Hà Đông, Hà Nội.',
+    hcm: '80 đường số 5 khu dân cư Hồng Long, Hiệp Bình Phước, Thủ Đức HCM.',
+    hungyen: 'Chà là 15-41 Vinhome Ocean Park 2.',
+    hotline1: '0986921555',
+    hotline2: '0989942555',
+    hotline3: '0908666622',
+    email: 'cskh.vietdesign@gmail.com',
+  });
+  
+  const [editingFooter, setEditingFooter] = useState(false);
+  const [localFooter, setLocalFooter] = useState(footerData);
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'footer'), (snap) => {
+      if (snap.exists()) {
+        setFooterData((prev) => ({ ...prev, ...snap.data() }));
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  const handleEditFooter = () => {
+    setLocalFooter(footerData);
+    setEditingFooter(true);
+  };
+
+  const handleSaveFooter = async () => {
+    await setDoc(doc(db, 'settings', 'footer'), localFooter, { merge: true });
+    setEditingFooter(false);
+  };
 
   const navLinks = [
     { to: '/', key: 'nav.home' },
@@ -192,142 +227,232 @@ export default function Layout({ children }: { children: ReactNode }) {
 
 
       {/* ── Main Footer ── */}
-      <footer className="bg-[#0a0a0a] pt-16 pb-8 border-t-2 border-[#d2b06f]">
-        <div className="max-w-7xl mx-auto px-6 md:px-10">
+      <footer className="bg-[#0a0a0a] pt-16 pb-8 border-t-2 border-[#d2b06f] relative">
+        {isAdmin && !editingFooter && (
+          <button 
+            onClick={handleEditFooter} 
+            className="absolute top-4 right-4 md:right-10 bg-[#d2b06f] text-[#000] px-4 py-2 text-xs font-bold uppercase tracking-widest z-10 flex items-center gap-2 rounded-sm shadow-lg hover:bg-[#b89555] transition-colors"
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>edit</span>
+            Sửa Footer
+          </button>
+        )}
 
-          {/* ROW 1 – Logo / Map / Branch */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mb-12 items-start">
-
-            {/* LEFT: Logo block */}
-            <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
-              <img
-                src="/logo.png"
-                alt="VIETDESIGN"
-                className="h-20 md:h-24 object-contain mb-4"
-                onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-              />
-              <div className="text-[#d2b06f] text-[0.7rem] md:text-xs tracking-[0.2em] uppercase mb-6 font-semibold">
-                NÂNG TẦM GIÁ TRỊ CUỘC SỐNG
+        {isAdmin && editingFooter ? (
+          <div className="max-w-4xl mx-auto px-6 mb-12 bg-[#131313] border border-[#d2b06f]/30 p-8">
+            <h3 className="text-[#d2b06f] font-bold uppercase tracking-widest text-lg mb-6 flex items-center gap-2">
+              <span className="material-symbols-outlined">settings</span> CHỈNH SỬA THÔNG TIN CHI NHÁNH & LIÊN HỆ
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div>
+                 <label className="block text-[#d2b06f] text-xs uppercase tracking-widest mb-2">Văn phòng Hà Nội</label>
+                 <textarea value={localFooter.hanoi} onChange={e => setLocalFooter({...localFooter, hanoi: e.target.value})} rows={2} className="w-full bg-transparent border border-[#333] text-white p-3 outline-none font-body text-sm rounded-sm focus:border-[#d2b06f]" />
               </div>
-              <div className="flex flex-col gap-3 items-center lg:items-start">
-                <div className="flex items-center gap-3 text-white">
-                  <span className="material-symbols-outlined text-[#d2b06f]">phone</span>
-                  <span className="text-sm md:text-base font-light font-body">
-                    Hotline: <a href="tel:0986921555" className="text-[#d2b06f] hover:underline font-medium tracking-wider">0986921555</a>
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 text-white">
-                  <span className="material-symbols-outlined text-[#d2b06f] opacity-0">phone</span>
-                  <span className="text-sm md:text-base font-light font-body">
-                    <a href="tel:0989942555" className="text-[#d2b06f] hover:underline font-medium tracking-wider">0989942555</a>
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 text-white">
-                  <span className="material-symbols-outlined text-[#d2b06f] opacity-0">phone</span>
-                  <span className="text-sm md:text-base font-light font-body">
-                    <a href="tel:0908666622" className="text-[#d2b06f] hover:underline font-medium tracking-wider">0908666622</a>
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 text-white">
-                  <span className="material-symbols-outlined text-[#d2b06f]">language</span>
-                  <span className="text-sm md:text-base font-light font-body">Website: www.vietdesign.vn</span>
-                </div>
-                <div className="flex items-center gap-3 text-white">
-                  <span className="material-symbols-outlined text-[#d2b06f]">group</span>
-                  <span className="text-sm md:text-base font-light font-body">Facebook: VietDesign</span>
-                </div>
+              <div>
+                 <label className="block text-[#d2b06f] text-xs uppercase tracking-widest mb-2">Văn phòng HCM</label>
+                 <textarea value={localFooter.hcm} onChange={e => setLocalFooter({...localFooter, hcm: e.target.value})} rows={2} className="w-full bg-transparent border border-[#333] text-white p-3 outline-none font-body text-sm rounded-sm focus:border-[#d2b06f]" />
+              </div>
+              <div>
+                 <label className="block text-[#d2b06f] text-xs uppercase tracking-widest mb-2">Văn phòng Hưng Yên</label>
+                 <textarea value={localFooter.hungyen} onChange={e => setLocalFooter({...localFooter, hungyen: e.target.value})} rows={2} className="w-full bg-transparent border border-[#333] text-white p-3 outline-none font-body text-sm rounded-sm focus:border-[#d2b06f]" />
+              </div>
+              <div>
+                 <label className="block text-[#d2b06f] text-xs uppercase tracking-widest mb-2">Email chăm sóc khách hàng</label>
+                 <input value={localFooter.email} onChange={e => setLocalFooter({...localFooter, email: e.target.value})} className="w-full bg-transparent border border-[#333] text-white p-3 outline-none font-body text-sm rounded-sm focus:border-[#d2b06f]" />
               </div>
             </div>
 
-            {/* MIDDLE: Google Maps */}
-            <div className="w-full">
-              <OfficeMap />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div>
+                 <label className="block text-[#d2b06f] text-xs uppercase tracking-widest mb-2">Hotline 1 (Chính)</label>
+                 <input value={localFooter.hotline1} onChange={e => setLocalFooter({...localFooter, hotline1: e.target.value})} className="w-full bg-transparent border border-[#333] text-white p-3 outline-none font-body text-sm rounded-sm focus:border-[#d2b06f]" placeholder="VD: 0986921555" />
+              </div>
+              <div>
+                 <label className="block text-[#d2b06f] text-xs uppercase tracking-widest mb-2">Hotline 2</label>
+                 <input value={localFooter.hotline2} onChange={e => setLocalFooter({...localFooter, hotline2: e.target.value})} className="w-full bg-transparent border border-[#333] text-white p-3 outline-none font-body text-sm rounded-sm focus:border-[#d2b06f]" placeholder="VD: 0989942555" />
+              </div>
+              <div>
+                 <label className="block text-[#d2b06f] text-xs uppercase tracking-widest mb-2">Hotline 3</label>
+                 <input value={localFooter.hotline3} onChange={e => setLocalFooter({...localFooter, hotline3: e.target.value})} className="w-full bg-transparent border border-[#333] text-white p-3 outline-none font-body text-sm rounded-sm focus:border-[#d2b06f]" placeholder="VD: 0908666622" />
+              </div>
             </div>
 
-            {/* RIGHT: Branch info */}
-            <div className="text-center lg:text-left">
-              <div className="text-[#d2b06f] text-xs tracking-[0.2em] uppercase mb-3 font-semibold">
-                {lang === 'VN' ? 'HỆ THỐNG CHI NHÁNH' : 'OUR BRANCHES'}
-              </div>
-              <div className="text-white text-2xl md:text-3xl font-serif mb-3 tracking-wide">
-                VIETDESIGN
-              </div>
-              <div className="h-0.5 bg-[#d2b06f] w-full max-w-[200px] mx-auto lg:mx-0 mb-6" />
-              <div className="text-[#d2b06f] font-semibold mb-2 text-sm md:text-base uppercase tracking-wider">
-                {lang === 'VN' ? 'VĂN PHÒNG HÀ NỘI' : 'HANOI OFFICE'}
-              </div>
-              <div className="text-white/70 mb-6 text-sm md:text-base font-light leading-relaxed">
-                Số 6 ngõ 158 đường Thanh Bình, Mỗ Lao, Hà Đông, Hà Nội.
-              </div>
-              <div className="text-[#d2b06f] font-semibold mb-2 text-sm md:text-base uppercase tracking-wider">
-                {lang === 'VN' ? 'VĂN PHÒNG HCM' : 'HCM OFFICE'}
-              </div>
-              <div className="text-white/70 mb-6 text-sm md:text-base font-light leading-relaxed">
-                80 đường số 5 khu dân cư Hồng Long, Hiệp Bình Phước, Thủ Đức HCM.
-              </div>
-              <div className="text-[#d2b06f] font-semibold mb-2 text-sm md:text-base uppercase tracking-wider">
-                {lang === 'VN' ? 'VĂN PHÒNG HƯNG YÊN' : 'HUNG YEN OFFICE'}
-              </div>
-              <div className="text-white/70 mb-6 text-sm md:text-base font-light leading-relaxed">
-                Chà là 15-41 Vinhome Ocean Park 2.
-              </div>
-              <div className="text-[#d2b06f] font-semibold mb-2 text-sm md:text-base uppercase tracking-wider">
-                HOTLINE
-              </div>
-              <div className="mb-6 text-sm md:text-base font-light flex flex-col gap-2">
-                <a href="tel:0986921555" className="text-[#d2b06f] font-bold tracking-wider hover:underline transition-all duration-300 inline-block">
-                  0986921555
-                </a>
-                <a href="tel:0989942555" className="text-[#d2b06f] font-bold tracking-wider hover:underline transition-all duration-300 inline-block">
-                  0989942555
-                </a>
-                <a href="tel:0908666622" className="text-[#d2b06f] font-bold tracking-wider hover:underline transition-all duration-300 inline-block">
-                  0908666622
-                </a>
-              </div>
-              <div className="text-[#d2b06f] font-semibold mb-2 text-sm md:text-base uppercase tracking-wider">
-                EMAIL
-              </div>
-              <div className="text-white/70 text-sm md:text-base font-light">
-                <a href="mailto:cskh.vietdesign@gmail.com" className="hover:text-[#d2b06f] transition-colors">
-                  cskh.vietdesign@gmail.com
-                </a>
-              </div>
+            <div className="flex gap-4 border-t border-[#333] pt-6">
+              <button onClick={handleSaveFooter} className="bg-[#d2b06f] text-black px-8 py-3 text-xs font-bold uppercase tracking-widest rounded-sm hover:bg-[#b89555] transition-colors">✔ XÁC NHẬN LƯU</button>
+              <button onClick={() => setEditingFooter(false)} className="border border-[#444] text-white/50 px-8 py-3 text-xs font-bold uppercase tracking-widest rounded-sm hover:bg-[#222] hover:text-white transition-colors">HỦY BỎ</button>
             </div>
           </div>
+        ) : (
+          <div className="max-w-7xl mx-auto px-6 md:px-10">
 
-          {/* ROW 2 – Gold divider + Nav links + Social icons */}
-          <div className="h-px bg-white/10 w-full mb-8" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-center mb-10 text-center lg:text-left">
-            <div className="flex gap-6 flex-wrap justify-center lg:justify-start">
-              <Link to="/about" className="text-white/80 no-underline uppercase text-xs tracking-widest font-semibold transition-colors hover:text-[#d2b06f]">
-                GIỚI THIỆU
-              </Link>
-              <Link to="#" className="text-white/80 no-underline uppercase text-xs tracking-widest font-semibold transition-colors hover:text-[#d2b06f]">
-                THÔNG BÁO PHÁP LÝ
-              </Link>
+            {/* ROW 1 – Logo / Map / Branch */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mb-12 items-start">
+
+              {/* LEFT: Logo block */}
+              <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
+                <img
+                  src="/logo.png"
+                  alt="VIETDESIGN"
+                  className="h-20 md:h-24 object-contain mb-4"
+                  onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                />
+                <div className="text-[#d2b06f] text-[0.7rem] md:text-xs tracking-[0.2em] uppercase mb-6 font-semibold">
+                  NÂNG TẦM GIÁ TRỊ CUỘC SỐNG
+                </div>
+                <div className="flex flex-col gap-3 items-center lg:items-start">
+                  {footerData.hotline1 && (
+                    <div className="flex items-center gap-3 text-white">
+                      <span className="material-symbols-outlined text-[#d2b06f]">phone</span>
+                      <span className="text-sm md:text-base font-light font-body">
+                        Hotline: <a href={`tel:${footerData.hotline1}`} className="text-[#d2b06f] hover:underline font-medium tracking-wider">{footerData.hotline1}</a>
+                      </span>
+                    </div>
+                  )}
+                  {footerData.hotline2 && (
+                    <div className="flex items-center gap-3 text-white">
+                      <span className="material-symbols-outlined text-[#d2b06f] opacity-0">phone</span>
+                      <span className="text-sm md:text-base font-light font-body">
+                        <a href={`tel:${footerData.hotline2}`} className="text-[#d2b06f] hover:underline font-medium tracking-wider">{footerData.hotline2}</a>
+                      </span>
+                    </div>
+                  )}
+                  {footerData.hotline3 && (
+                    <div className="flex items-center gap-3 text-white">
+                      <span className="material-symbols-outlined text-[#d2b06f] opacity-0">phone</span>
+                      <span className="text-sm md:text-base font-light font-body">
+                        <a href={`tel:${footerData.hotline3}`} className="text-[#d2b06f] hover:underline font-medium tracking-wider">{footerData.hotline3}</a>
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-3 text-white">
+                    <span className="material-symbols-outlined text-[#d2b06f]">language</span>
+                    <span className="text-sm md:text-base font-light font-body">Website: www.vietdesign.vn</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-white">
+                    <span className="material-symbols-outlined text-[#d2b06f]">group</span>
+                    <span className="text-sm md:text-base font-light font-body">Facebook: VietDesign</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* MIDDLE: Google Maps */}
+              <div className="w-full">
+                <OfficeMap />
+              </div>
+
+              {/* RIGHT: Branch info */}
+              <div className="text-center lg:text-left">
+                <div className="text-[#d2b06f] text-xs tracking-[0.2em] uppercase mb-3 font-semibold">
+                  {lang === 'VN' ? 'HỆ THỐNG CHI NHÁNH' : 'OUR BRANCHES'}
+                </div>
+                <div className="text-white text-2xl md:text-3xl font-serif mb-3 tracking-wide">
+                  VIETDESIGN
+                </div>
+                <div className="h-0.5 bg-[#d2b06f] w-full max-w-[200px] mx-auto lg:mx-0 mb-6" />
+                
+                {footerData.hanoi && (
+                  <>
+                    <div className="text-[#d2b06f] font-semibold mb-2 text-sm md:text-base uppercase tracking-wider">
+                      {lang === 'VN' ? 'VĂN PHÒNG HÀ NỘI' : 'HANOI OFFICE'}
+                    </div>
+                    <div className="text-white/70 mb-6 text-sm md:text-base font-light leading-relaxed">
+                      {footerData.hanoi}
+                    </div>
+                  </>
+                )}
+                
+                {footerData.hcm && (
+                  <>
+                    <div className="text-[#d2b06f] font-semibold mb-2 text-sm md:text-base uppercase tracking-wider">
+                      {lang === 'VN' ? 'VĂN PHÒNG HCM' : 'HCM OFFICE'}
+                    </div>
+                    <div className="text-white/70 mb-6 text-sm md:text-base font-light leading-relaxed">
+                      {footerData.hcm}
+                    </div>
+                  </>
+                )}
+                
+                {footerData.hungyen && (
+                  <>
+                    <div className="text-[#d2b06f] font-semibold mb-2 text-sm md:text-base uppercase tracking-wider">
+                      {lang === 'VN' ? 'VĂN PHÒNG HƯNG YÊN' : 'HUNG YEN OFFICE'}
+                    </div>
+                    <div className="text-white/70 mb-6 text-sm md:text-base font-light leading-relaxed">
+                      {footerData.hungyen}
+                    </div>
+                  </>
+                )}
+
+                <div className="text-[#d2b06f] font-semibold mb-2 text-sm md:text-base uppercase tracking-wider">
+                  HOTLINE
+                </div>
+                <div className="mb-6 text-sm md:text-base font-light flex flex-col gap-2">
+                  {footerData.hotline1 && (
+                    <a href={`tel:${footerData.hotline1}`} className="text-[#d2b06f] font-bold tracking-wider hover:underline transition-all duration-300 inline-block">
+                      {footerData.hotline1}
+                    </a>
+                  )}
+                  {footerData.hotline2 && (
+                    <a href={`tel:${footerData.hotline2}`} className="text-[#d2b06f] font-bold tracking-wider hover:underline transition-all duration-300 inline-block">
+                      {footerData.hotline2}
+                    </a>
+                  )}
+                  {footerData.hotline3 && (
+                    <a href={`tel:${footerData.hotline3}`} className="text-[#d2b06f] font-bold tracking-wider hover:underline transition-all duration-300 inline-block">
+                      {footerData.hotline3}
+                    </a>
+                  )}
+                </div>
+                
+                {footerData.email && (
+                  <>
+                    <div className="text-[#d2b06f] font-semibold mb-2 text-sm md:text-base uppercase tracking-wider">
+                      EMAIL
+                    </div>
+                    <div className="text-white/70 text-sm md:text-base font-light">
+                      <a href={`mailto:${footerData.email}`} className="hover:text-[#d2b06f] transition-colors">
+                        {footerData.email}
+                      </a>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
-            <div className="flex gap-6 flex-wrap justify-center">
-              <Link to="/contact" className="text-white/80 no-underline uppercase text-xs tracking-widest font-semibold transition-colors hover:text-[#d2b06f]">
-                LIÊN HỆ
-              </Link>
-              <Link to="#" className="text-white/80 no-underline uppercase text-xs tracking-widest font-semibold transition-colors hover:text-[#d2b06f]">
-                CHÍNH SÁCH BẢO MẬT
-              </Link>
+
+            {/* ROW 2 – Gold divider + Nav links + Social icons */}
+            <div className="h-px bg-white/10 w-full mb-8" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-center mb-10 text-center lg:text-left">
+              <div className="flex gap-6 flex-wrap justify-center lg:justify-start">
+                <Link to="/about" className="text-white/80 no-underline uppercase text-xs tracking-widest font-semibold transition-colors hover:text-[#d2b06f]">
+                  GIỚI THIỆU
+                </Link>
+                <Link to="#" className="text-white/80 no-underline uppercase text-xs tracking-widest font-semibold transition-colors hover:text-[#d2b06f]">
+                  THÔNG BÁO PHÁP LÝ
+                </Link>
+              </div>
+              <div className="flex gap-6 flex-wrap justify-center">
+                <Link to="/contact" className="text-white/80 no-underline uppercase text-xs tracking-widest font-semibold transition-colors hover:text-[#d2b06f]">
+                  LIÊN HỆ
+                </Link>
+                <Link to="#" className="text-white/80 no-underline uppercase text-xs tracking-widest font-semibold transition-colors hover:text-[#d2b06f]">
+                  CHÍNH SÁCH BẢO MẬT
+                </Link>
+              </div>
+
             </div>
 
+            {/* ROW 3 – Copyright */}
+            <div className="text-center text-[#d2b06f]/60 text-xs tracking-wider">
+              Copyright 2024 © VIETDESIGN - {lang === 'VN' ? 'Kiến Trúc & Nội Thất' : 'Architecture & Interiors'}. All rights reserved.
+            </div>
           </div>
-
-          {/* ROW 3 – Copyright */}
-          <div className="text-center text-[#d2b06f]/60 text-xs tracking-wider">
-            Copyright 2024 © VIETDESIGN - {lang === 'VN' ? 'Kiến Trúc & Nội Thất' : 'Architecture & Interiors'}. All rights reserved.
-          </div>
-        </div>
+        )}
       </footer>
 
       {/* ── Floating Action Buttons ── */}
       <div className="fixed bottom-6 right-6 md:bottom-10 md:right-10 flex flex-col gap-3 z-[70]">
-        <FloatingButton href="https://zalo.me/84989942555" label="Zalo Chat" bgColor="#0068ff" textColor="white">
+        <FloatingButton href={`https://zalo.me/${footerData.hotline1}`} label="Zalo Chat" bgColor="#0068ff" textColor="white">
           <img
             src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg"
             alt="Zalo"
@@ -341,12 +466,12 @@ export default function Layout({ children }: { children: ReactNode }) {
             }}
           />
         </FloatingButton>
-        <FloatingButton href="tel:0986921555" label={lang === 'VN' ? 'Gọi Điện' : 'Call Us'}>
+        <FloatingButton href={`tel:${footerData.hotline1}`} label={lang === 'VN' ? 'Gọi Điện' : 'Call Us'}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 md:w-5 md:h-5">
             <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.5 1.19 2 2 0 012.48.98h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 8.49a16 16 0 006.6 6.6l1.86-1.86a2 2 0 012.11-.45c.908.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
           </svg>
         </FloatingButton>
-        <FloatingButton href="mailto:cskh.vietdesign@gmail.com" label="Email" isMain>
+        <FloatingButton href={`mailto:${footerData.email}`} label="Email" isMain>
           <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 md:w-5 md:h-5">
             <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
           </svg>

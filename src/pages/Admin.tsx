@@ -1,8 +1,8 @@
-﻿import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdminMode } from '../contexts/AdminModeContext';
 
-const ADMIN_PASSWORD = 'vietdesign2024';
+const ADMIN_PASSWORD = 'vietdesign@';
 
 export default function Admin() {
   const { isAdmin, login } = useAdminMode();
