@@ -67,6 +67,17 @@ export default function Layout({ children }: { children: ReactNode }) {
   const { isAdmin } = useAdminMode();
   const location = useLocation();
   const currentPath = location.pathname;
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const navLinks = [
+    { to: '/', key: 'nav.home' },
+    { to: '/services', key: 'nav.services' },
+    { to: '/projects', key: 'nav.projects' },
+    { to: '/design', key: 'nav.design' },
+    { to: '/about', key: 'nav.about' },
+    { to: '/journal', key: 'nav.journal' },
+    { to: '/contact', key: 'nav.contact' },
+  ];
 
   return (
     <div
@@ -103,14 +114,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         </div>
 
         <nav className="hidden xl:flex items-center gap-10" style={{ fontFamily: 'Manrope, sans-serif' }}>
-          {[
-            { to: '/', key: 'nav.home' },
-            { to: '/services', key: 'nav.services' },
-            { to: '/projects', key: 'nav.projects' },
-            { to: '/about', key: 'nav.about' },
-            { to: '/journal', key: 'nav.journal' },
-            { to: '/contact', key: 'nav.contact' },
-          ].map(({ to, key }) => {
+          {navLinks.map(({ to, key }) => {
             const isActive = to === '/' ? currentPath === '/' : currentPath.startsWith(to);
             return (
               <Link
@@ -132,15 +136,55 @@ export default function Layout({ children }: { children: ReactNode }) {
           })}
         </nav>
 
-        <button
-          onClick={toggleLang}
-          className="shrink-0 cursor-pointer bg-none border-none font-serif tracking-wider text-sm md:text-base outline-none hover:opacity-80 transition-opacity"
-        >
-          <span style={{ color: lang === 'VN' ? '#fff' : '#d2b06f55' }}>VN</span>
-          <span style={{ color: '#d2b06f44', margin: '0 4px' }}>|</span>
-          <span style={{ color: lang === 'EN' ? '#fff' : '#d2b06f55' }}>EN</span>
-        </button>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={toggleLang}
+            className="shrink-0 cursor-pointer bg-none border-none font-serif tracking-wider text-sm md:text-base outline-none hover:opacity-80 transition-opacity"
+          >
+            <span style={{ color: lang === 'VN' ? '#fff' : '#d2b06f55' }}>VN</span>
+            <span style={{ color: '#d2b06f44', margin: '0 4px' }}>|</span>
+            <span style={{ color: lang === 'EN' ? '#fff' : '#d2b06f55' }}>EN</span>
+          </button>
+          
+          {/* Mobile Menu Toggle Btn */}
+          <button 
+            className="xl:hidden flex flex-col justify-center gap-1.5 w-8 h-8 z-[100]"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            <span className={`block w-6 h-0.5 bg-[#d2b06f] transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
+            <span className={`block w-6 h-0.5 bg-[#d2b06f] transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`} />
+            <span className={`block w-6 h-0.5 bg-[#d2b06f] transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+          </button>
+        </div>
       </header>
+      
+      {/* Mobile Menu Overlay */}
+      <div 
+        className={`fixed inset-0 bg-[#0a0a0a] z-40 transition-transform duration-500 xl:hidden flex flex-col items-center justify-center`}
+        style={{ transform: isMobileMenuOpen ? 'translateY(0)' : 'translateY(-100%)', top: isAdmin ? '44px' : '0' }}
+      >
+        <nav className="flex flex-col items-center gap-8" style={{ fontFamily: 'Manrope, sans-serif' }}>
+          {navLinks.map(({ to, key }) => {
+            const isActive = to === '/' ? currentPath === '/' : currentPath.startsWith(to);
+            return (
+              <Link
+                key={key}
+                to={to}
+                onClick={() => setIsMobileMenuOpen(false)}
+                style={{
+                  color: isActive ? '#d2b06f' : '#fff',
+                  fontSize: '1.25rem',
+                  letterSpacing: '0.15em',
+                  textDecoration: 'none',
+                  textTransform: 'uppercase',
+                }}
+              >
+                {t(key)}
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
 
       {/* ── Main content ── */}
       <main className="flex-grow pt-16 md:pt-0">{children}</main>
@@ -203,7 +247,19 @@ export default function Layout({ children }: { children: ReactNode }) {
                 {lang === 'VN' ? 'VĂN PHÒNG HÀ NỘI' : 'HANOI OFFICE'}
               </div>
               <div className="text-white/70 mb-6 text-sm md:text-base font-light leading-relaxed">
-                C37 Bắc Hà Tower, Tố Hữu, Hà Đông, Hà Nội
+                số 6 ngõ 158 đường thanh bình,mỗ lao,hà đông,hà nội.
+              </div>
+              <div className="text-[#d2b06f] font-semibold mb-2 text-sm md:text-base uppercase tracking-wider">
+                {lang === 'VN' ? 'VĂN PHÒNG HCM' : 'HCM OFFICE'}
+              </div>
+              <div className="text-white/70 mb-6 text-sm md:text-base font-light leading-relaxed">
+                80 đường số 5 khu dân cư Hồng Long, Hiệp Bình Phước, Thủ Đức HCM.
+              </div>
+              <div className="text-[#d2b06f] font-semibold mb-2 text-sm md:text-base uppercase tracking-wider">
+                HOTLINE
+              </div>
+              <div className="text-white/70 mb-6 text-sm md:text-base font-light">
+                0986921555
               </div>
               <div className="text-[#d2b06f] font-semibold mb-2 text-sm md:text-base uppercase tracking-wider">
                 EMAIL

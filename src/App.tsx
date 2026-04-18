@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -16,6 +16,7 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import Journal from './pages/Journal';
 import Admin from './pages/Admin';
+import Design from './pages/Design';
 
 export default function App() {
   return (
@@ -36,6 +37,7 @@ export default function App() {
                       <Route path="/services" element={<Services />} />
                       <Route path="/projects" element={<Projects />} />
                       <Route path="/projects/:id" element={<ProjectDetail />} />
+                      <Route path="/design" element={<Design />} />
                       <Route path="/about" element={<About />} />
                       <Route path="/contact" element={<Contact />} />
                       <Route path="/journal" element={<Journal />} />
