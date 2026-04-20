@@ -76,9 +76,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     hanoi: 'Số 6 ngõ 158 đường Thanh Bình, Mỗ Lao, Hà Đông, Hà Nội.',
     hcm: '80 đường số 5 khu dân cư Hồng Long, Hiệp Bình Phước, Thủ Đức HCM.',
     hungyen: 'Chà là 15-41 Vinhome Ocean Park 2.',
-    hotline1: '0986921555',
-    hotline2: '0989942555',
-    hotline3: '0908666622',
+    hotlines: ['1. 0986921555', '2. 0989942555', '3. 0908666622'],
     email: 'cskh.vietdesign@gmail.com',
   });
   
@@ -88,7 +86,16 @@ export default function Layout({ children }: { children: ReactNode }) {
   useEffect(() => {
     const unsub = onSnapshot(doc(db, 'settings', 'footer'), (snap) => {
       if (snap.exists()) {
-        setFooterData((prev) => ({ ...prev, ...snap.data() }));
+        const data = snap.data();
+        let updatedHotlines = data.hotlines || [];
+        // Support legacy schema
+        if (updatedHotlines.length === 0 && (data.hotline1 || data.hotline2 || data.hotline3)) {
+          if (data.hotline1) updatedHotlines.push(data.hotline1);
+          if (data.hotline2) updatedHotlines.push(data.hotline2);
+          if (data.hotline3) updatedHotlines.push(data.hotline3);
+        }
+        if (updatedHotlines.length === 0) updatedHotlines = ['1. 0986921555', '2. 0989942555', '3. 0908666622'];
+        setFooterData((prev) => ({ ...prev, ...data, hotlines: updatedHotlines }));
       }
     });
     return () => unsub();
@@ -263,18 +270,36 @@ export default function Layout({ children }: { children: ReactNode }) {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div>
-                 <label className="block text-[#d2b06f] text-xs uppercase tracking-widest mb-2">Hotline 1 (Chính)</label>
-                 <input value={localFooter.hotline1} onChange={e => setLocalFooter({...localFooter, hotline1: e.target.value})} className="w-full bg-transparent border border-[#333] text-white p-3 outline-none font-body text-sm rounded-sm focus:border-[#d2b06f]" placeholder="VD: 0986921555" />
+            <div className="mb-6 border-t border-[#333] pt-6">
+              <div className="flex items-center gap-4 mb-4">
+                 <label className="block text-[#d2b06f] text-xs uppercase tracking-widest">Danh sách Hotline</label>
+                 <button onClick={() => setLocalFooter({...localFooter, hotlines: [...(localFooter.hotlines||[]), '']})} className="bg-[#d2b06f]/20 text-[#d2b06f] px-3 py-1 text-xs font-bold rounded-sm hover:bg-[#d2b06f] hover:text-black transition-colors">+ Thêm số</button>
               </div>
-              <div>
-                 <label className="block text-[#d2b06f] text-xs uppercase tracking-widest mb-2">Hotline 2</label>
-                 <input value={localFooter.hotline2} onChange={e => setLocalFooter({...localFooter, hotline2: e.target.value})} className="w-full bg-transparent border border-[#333] text-white p-3 outline-none font-body text-sm rounded-sm focus:border-[#d2b06f]" placeholder="VD: 0989942555" />
-              </div>
-              <div>
-                 <label className="block text-[#d2b06f] text-xs uppercase tracking-widest mb-2">Hotline 3</label>
-                 <input value={localFooter.hotline3} onChange={e => setLocalFooter({...localFooter, hotline3: e.target.value})} className="w-full bg-transparent border border-[#333] text-white p-3 outline-none font-body text-sm rounded-sm focus:border-[#d2b06f]" placeholder="VD: 0908666622" />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                 {(localFooter.hotlines || []).map((hl, idx) => (
+                   <div key={idx} className="relative">
+                     <input 
+                       value={hl} 
+                       onChange={e => {
+                         const newHl = [...(localFooter.hotlines||[])];
+                         newHl[idx] = e.target.value;
+                         setLocalFooter({...localFooter, hotlines: newHl});
+                       }} 
+                       className="w-full bg-transparent border border-[#333] text-white p-3 pr-10 outline-none font-body text-sm rounded-sm focus:border-[#d2b06f]" 
+                       placeholder={`Số ${idx + 1} (VD: ${idx + 1}. 098...)`} 
+                     />
+                     <button 
+                       onClick={() => {
+                         const newHl = (localFooter.hotlines||[]).filter((_, i) => i !== idx);
+                         setLocalFooter({...localFooter, hotlines: newHl});
+                       }}
+                       className="absolute right-2 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-400 p-1"
+                       title="Xóa số"
+                     >
+                       <span className="material-symbols-outlined" style={{fontSize: '18px'}}>delete</span>
+                     </button>
+                   </div>
+                 ))}
               </div>
             </div>
 
@@ -305,21 +330,11 @@ export default function Layout({ children }: { children: ReactNode }) {
                     <span className="material-symbols-outlined text-[#d2b06f] mt-0.5">phone</span>
                     <div className="flex flex-col gap-1.5">
                       <span className="text-sm md:text-base font-light font-body">Hotline:</span>
-                      {footerData.hotline1 && (
-                        <span className="text-sm md:text-base font-light font-body">
-                          <a href={`tel:${footerData.hotline1.replace(/[^\\d+]/g, '')}`} className="text-[#d2b06f] hover:underline font-medium tracking-wider">{footerData.hotline1}</a>
+                      {(footerData.hotlines || []).map((hl, idx) => hl.trim() ? (
+                        <span key={idx} className="text-sm md:text-base font-light font-body">
+                          <a href={`tel:${hl.replace(/[^\\d+]/g, '')}`} className="text-[#d2b06f] hover:underline font-medium tracking-wider">{hl}</a>
                         </span>
-                      )}
-                      {footerData.hotline2 && (
-                        <span className="text-sm md:text-base font-light font-body">
-                          <a href={`tel:${footerData.hotline2.replace(/[^\\d+]/g, '')}`} className="text-[#d2b06f] hover:underline font-medium tracking-wider">{footerData.hotline2}</a>
-                        </span>
-                      )}
-                      {footerData.hotline3 && (
-                        <span className="text-sm md:text-base font-light font-body">
-                          <a href={`tel:${footerData.hotline3.replace(/[^\\d+]/g, '')}`} className="text-[#d2b06f] hover:underline font-medium tracking-wider">{footerData.hotline3}</a>
-                        </span>
-                      )}
+                      ) : null)}
                     </div>
                   </div>
                   <div className="flex items-center gap-3 text-white">
@@ -389,21 +404,11 @@ export default function Layout({ children }: { children: ReactNode }) {
                   HOTLINE
                 </div>
                 <div className="mb-6 text-sm md:text-base font-light flex flex-col gap-2">
-                  {footerData.hotline1 && (
-                    <a href={`tel:${footerData.hotline1.replace(/[^\\d+]/g, '')}`} className="text-[#d2b06f] font-bold tracking-wider hover:underline transition-all duration-300 inline-block">
-                      {footerData.hotline1}
+                  {(footerData.hotlines || []).map((hl, idx) => hl.trim() ? (
+                    <a key={idx} href={`tel:${hl.replace(/[^\\d+]/g, '')}`} className="text-[#d2b06f] font-bold tracking-wider hover:underline transition-all duration-300 inline-block">
+                      {hl}
                     </a>
-                  )}
-                  {footerData.hotline2 && (
-                    <a href={`tel:${footerData.hotline2.replace(/[^\\d+]/g, '')}`} className="text-[#d2b06f] font-bold tracking-wider hover:underline transition-all duration-300 inline-block">
-                      {footerData.hotline2}
-                    </a>
-                  )}
-                  {footerData.hotline3 && (
-                    <a href={`tel:${footerData.hotline3.replace(/[^\\d+]/g, '')}`} className="text-[#d2b06f] font-bold tracking-wider hover:underline transition-all duration-300 inline-block">
-                      {footerData.hotline3}
-                    </a>
-                  )}
+                  ) : null)}
                 </div>
                 
                 {footerData.email && (
@@ -453,7 +458,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 
       {/* ── Floating Action Buttons ── */}
       <div className="fixed bottom-6 right-6 md:bottom-10 md:right-10 flex flex-col gap-3 z-[70]">
-        <FloatingButton href={`https://zalo.me/${footerData.hotline1}`} label="Zalo Chat" bgColor="#0068ff" textColor="white">
+        <FloatingButton href={`https://zalo.me/${(footerData.hotlines?.[0] || '0986921555').replace(/[^\\d+]/g, '')}`} label="Zalo Chat" bgColor="#0068ff" textColor="white">
           <img
             src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg"
             alt="Zalo"
@@ -467,7 +472,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             }}
           />
         </FloatingButton>
-        <FloatingButton href={`tel:${footerData.hotline1}`} label={lang === 'VN' ? 'Gọi Điện' : 'Call Us'}>
+        <FloatingButton href={`tel:${(footerData.hotlines?.[0] || '0986921555').replace(/[^\\d+]/g, '')}`} label={lang === 'VN' ? 'Gọi Điện' : 'Call Us'}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 md:w-5 md:h-5">
             <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.5 1.19 2 2 0 012.48.98h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 8.49a16 16 0 006.6 6.6l1.86-1.86a2 2 0 012.11-.45c.908.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
           </svg>
