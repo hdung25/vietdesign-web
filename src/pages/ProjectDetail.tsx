@@ -62,25 +62,27 @@ export default function ProjectDetail() {
         <p style={{ color: '#d2b06f', fontFamily: 'Manrope, sans-serif', fontSize: '0.72rem', letterSpacing: '0.4em', textTransform: 'uppercase', marginBottom: '12px' }}>
           {project.category} — {project.location}
         </p>
-        <h1 style={{ fontFamily: 'Noto Serif, serif', color: '#fff', fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 300, letterSpacing: '0.06em', lineHeight: 1.2, margin: '0 0 16px' }}>
+        <h1 style={{ fontFamily: 'Noto Serif, serif', color: '#fff', fontWeight: 300, letterSpacing: '0.06em', margin: '0 0 24px' }}>
           {title}
         </h1>
         {desc && (
-          <div style={{ maxWidth: '660px', margin: '0 auto 32px' }}>
-            <p style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'Manrope, sans-serif', fontSize: '1rem', lineHeight: '1.8', margin: 0, whiteSpace: 'pre-wrap', textAlign: 'justify' }}>
+          <div style={{ maxWidth: '850px', margin: '0 auto 40px' }}>
+            <p style={{ color: 'rgba(255,255,255,0.7)', fontFamily: 'Manrope, sans-serif', margin: 0, whiteSpace: 'pre-wrap', textAlign: 'left', padding: '0 16px', lineHeight: '1.9' }}>
               {displayDesc}
             </p>
             {shouldTruncate && (
               <button 
                 onClick={() => setIsExpanded(!isExpanded)}
-                style={{ background: 'none', border: 'none', color: '#d2b06f', cursor: 'pointer', fontFamily: 'Manrope, sans-serif', fontSize: '0.8rem', letterSpacing: '0.1em', marginTop: '16px', padding: 0, textTransform: 'uppercase', borderBottom: '1px solid #d2b06f' }}
+                style={{ background: 'none', border: 'none', color: '#d2b06f', cursor: 'pointer', fontFamily: 'Manrope, sans-serif', fontSize: '0.9rem', letterSpacing: '0.15em', marginTop: '24px', padding: '4px 0', textTransform: 'uppercase', borderBottom: '1px solid rgba(210, 176, 111, 0.4)', transition: 'all 0.3s ease' }}
+                onMouseEnter={e => e.currentTarget.style.borderBottomColor = '#d2b06f'}
+                onMouseLeave={e => e.currentTarget.style.borderBottomColor = 'rgba(210, 176, 111, 0.4)'}
               >
                 {isExpanded ? (VN ? 'Thu gọn' : 'Show less') : (VN ? 'Xem thêm' : 'Read more')}
               </button>
             )}
           </div>
         )}
-        <div style={{ width: '60px', height: '1px', background: '#d2b06f', margin: '0 auto' }} />
+        <div style={{ width: '80px', height: '1px', background: '#d2b06f', margin: '0 auto', opacity: 0.5 }} />
       </div>
 
       {/* ── Images ── */}
