@@ -301,37 +301,38 @@ export default function Layout({ children }: { children: ReactNode }) {
                   NÂNG TẦM GIÁ TRỊ CUỘC SỐNG
                 </div>
                 <div className="flex flex-col gap-3 items-center lg:items-start">
-                  {footerData.hotline1 && (
-                    <div className="flex items-center gap-3 text-white">
-                      <span className="material-symbols-outlined text-[#d2b06f]">phone</span>
-                      <span className="text-sm md:text-base font-light font-body">
-                        Hotline: <a href={`tel:${footerData.hotline1}`} className="text-[#d2b06f] hover:underline font-medium tracking-wider">{footerData.hotline1}</a>
-                      </span>
+                  <div className="flex items-start gap-3 text-white">
+                    <span className="material-symbols-outlined text-[#d2b06f] mt-0.5">phone</span>
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-sm md:text-base font-light font-body">Hotline:</span>
+                      {footerData.hotline1 && (
+                        <span className="text-sm md:text-base font-light font-body">
+                          <a href={`tel:${footerData.hotline1.replace(/[^\\d+]/g, '')}`} className="text-[#d2b06f] hover:underline font-medium tracking-wider">{footerData.hotline1}</a>
+                        </span>
+                      )}
+                      {footerData.hotline2 && (
+                        <span className="text-sm md:text-base font-light font-body">
+                          <a href={`tel:${footerData.hotline2.replace(/[^\\d+]/g, '')}`} className="text-[#d2b06f] hover:underline font-medium tracking-wider">{footerData.hotline2}</a>
+                        </span>
+                      )}
+                      {footerData.hotline3 && (
+                        <span className="text-sm md:text-base font-light font-body">
+                          <a href={`tel:${footerData.hotline3.replace(/[^\\d+]/g, '')}`} className="text-[#d2b06f] hover:underline font-medium tracking-wider">{footerData.hotline3}</a>
+                        </span>
+                      )}
                     </div>
-                  )}
-                  {footerData.hotline2 && (
-                    <div className="flex items-center gap-3 text-white">
-                      <span className="material-symbols-outlined text-[#d2b06f] opacity-0">phone</span>
-                      <span className="text-sm md:text-base font-light font-body">
-                        <a href={`tel:${footerData.hotline2}`} className="text-[#d2b06f] hover:underline font-medium tracking-wider">{footerData.hotline2}</a>
-                      </span>
-                    </div>
-                  )}
-                  {footerData.hotline3 && (
-                    <div className="flex items-center gap-3 text-white">
-                      <span className="material-symbols-outlined text-[#d2b06f] opacity-0">phone</span>
-                      <span className="text-sm md:text-base font-light font-body">
-                        <a href={`tel:${footerData.hotline3}`} className="text-[#d2b06f] hover:underline font-medium tracking-wider">{footerData.hotline3}</a>
-                      </span>
-                    </div>
-                  )}
+                  </div>
                   <div className="flex items-center gap-3 text-white">
                     <span className="material-symbols-outlined text-[#d2b06f]">language</span>
-                    <span className="text-sm md:text-base font-light font-body">Website: www.vietdesign.vn</span>
+                    <span className="text-sm md:text-base font-light font-body">
+                      Website: <a href="https://vietdesign-web.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#d2b06f] transition-colors hover:underline">vietdesign-web.vercel.app</a>
+                    </span>
                   </div>
                   <div className="flex items-center gap-3 text-white">
                     <span className="material-symbols-outlined text-[#d2b06f]">group</span>
-                    <span className="text-sm md:text-base font-light font-body">Facebook: VietDesign</span>
+                    <span className="text-sm md:text-base font-light font-body">
+                      Facebook: <a href="https://www.facebook.com/www.vietdesign.vn/" target="_blank" rel="noopener noreferrer" className="text-[#d2b06f] font-medium hover:underline transition-colors">VietDesign</a>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -389,17 +390,17 @@ export default function Layout({ children }: { children: ReactNode }) {
                 </div>
                 <div className="mb-6 text-sm md:text-base font-light flex flex-col gap-2">
                   {footerData.hotline1 && (
-                    <a href={`tel:${footerData.hotline1}`} className="text-[#d2b06f] font-bold tracking-wider hover:underline transition-all duration-300 inline-block">
+                    <a href={`tel:${footerData.hotline1.replace(/[^\\d+]/g, '')}`} className="text-[#d2b06f] font-bold tracking-wider hover:underline transition-all duration-300 inline-block">
                       {footerData.hotline1}
                     </a>
                   )}
                   {footerData.hotline2 && (
-                    <a href={`tel:${footerData.hotline2}`} className="text-[#d2b06f] font-bold tracking-wider hover:underline transition-all duration-300 inline-block">
+                    <a href={`tel:${footerData.hotline2.replace(/[^\\d+]/g, '')}`} className="text-[#d2b06f] font-bold tracking-wider hover:underline transition-all duration-300 inline-block">
                       {footerData.hotline2}
                     </a>
                   )}
                   {footerData.hotline3 && (
-                    <a href={`tel:${footerData.hotline3}`} className="text-[#d2b06f] font-bold tracking-wider hover:underline transition-all duration-300 inline-block">
+                    <a href={`tel:${footerData.hotline3.replace(/[^\\d+]/g, '')}`} className="text-[#d2b06f] font-bold tracking-wider hover:underline transition-all duration-300 inline-block">
                       {footerData.hotline3}
                     </a>
                   )}
