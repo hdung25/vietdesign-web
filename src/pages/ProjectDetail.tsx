@@ -1,12 +1,18 @@
 import { useParams, Link } from 'react-router-dom';
 import { useProjectData } from '../contexts/ProjectDataContext';
 import { useLang } from '../contexts/LanguageContext';
+import { useState, useEffect } from 'react';
 
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
   const { projects } = useProjectData();
   const { lang } = useLang();
   const VN = lang === 'VN';
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  useEffect(() => {
+    setIsExpanded(false);
+  }, [id]);
 
   const project = projects.find(p => p.id === Number(id));
 
@@ -30,6 +36,12 @@ export default function ProjectDetail() {
 
   const title = VN ? project.title : project.titleEN;
   const desc = VN ? project.desc : project.descEN;
+  const MAX_DESC_LENGTH = 300;
+  
+  const shouldTruncate = desc && desc.length > MAX_DESC_LENGTH;
+  const displayDesc = shouldTruncate && !isExpanded 
+    ? desc.substring(0, MAX_DESC_LENGTH).replace(/\\s+\\S*$/, "") + '...' 
+    : desc;
 
   return (
     <div style={{ background: '#0a0a0a', minHeight: '100vh' }}>
@@ -54,9 +66,19 @@ export default function ProjectDetail() {
           {title}
         </h1>
         {desc && (
-          <p style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'Manrope, sans-serif', fontSize: '1rem', lineHeight: '1.8', maxWidth: '660px', margin: '0 auto 32px' }}>
-            {desc}
-          </p>
+          <div style={{ maxWidth: '660px', margin: '0 auto 32px' }}>
+            <p style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'Manrope, sans-serif', fontSize: '1rem', lineHeight: '1.8', margin: 0, whiteSpace: 'pre-wrap', textAlign: 'justify' }}>
+              {displayDesc}
+            </p>
+            {shouldTruncate && (
+              <button 
+                onClick={() => setIsExpanded(!isExpanded)}
+                style={{ background: 'none', border: 'none', color: '#d2b06f', cursor: 'pointer', fontFamily: 'Manrope, sans-serif', fontSize: '0.8rem', letterSpacing: '0.1em', marginTop: '16px', padding: 0, textTransform: 'uppercase', borderBottom: '1px solid #d2b06f' }}
+              >
+                {isExpanded ? (VN ? 'Thu gọn' : 'Show less') : (VN ? 'Xem thêm' : 'Read more')}
+              </button>
+            )}
+          </div>
         )}
         <div style={{ width: '60px', height: '1px', background: '#d2b06f', margin: '0 auto' }} />
       </div>
